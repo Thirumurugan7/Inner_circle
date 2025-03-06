@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+@theme{
+  --color-primary:#FFFFFF;
+  --color-secondry: #969696;
+  --color-teritary:#050505;
+  --color-four:#6E6E6E;
+  --color-twenty:#FFFFFF33;
+  --color-thirty:#FFFFFF4D;
+  --color-fourty:#FFFFFF66;
+  --color-fifty:#FFFFFF80;
+  --color-black:#000000;
+  --color-sixty:#FFFFFF99;
+  --color-seventy:#FFFFFFB2;
+  --color-eighty:#FFFFFFCC;
+  --font-dmSans:"DM Sans","sans-serif";
+  --font-bri: "Bricolage Grotesque", "serif";
+}

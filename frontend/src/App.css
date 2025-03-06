@@ -1,0 +1,225 @@
+
+@font-face {
+  font-family: 'Thunder';
+  src: url('./assets/fonts/Thunder-MediumLC.otf') format('opentype');
+  font-weight: 500;
+  /* Medium */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Thunder';
+  src: url('./assets/fonts/Thunder-BoldLC.otf') format('opentype');
+  font-weight: 700;
+  /* Bold */
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Thunder';
+  src: url('./assets/fonts/Thunder-ExtraBoldLC.otf') format('opentype');
+  font-weight: 800;
+  /* Extra Bold */
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Thunder';
+  src: url('./assets/fonts/Thunder-LC.otf') format('opentype');
+  font-weight: 400;
+  /* normal */
+  font-style: normal;
+}
+body {
+  background-color: #000000;
+  position: relative;
+  overflow: hidden;
+  background-image: url('./assets/images/ne.png');
+ 
+}
+
+
+
+.thunder-bold{
+  font-family: 'Thunder', sans-serif;
+  font-weight: 700;
+}
+.thunder-Extrabold {
+  font-family: 'Thunder', sans-serif;
+  font-weight: 800;
+}
+.thunder-medium{
+  font-family: 'Thunder', sans-serif;
+  font-weight: 500;
+}
+.thunder-normal{
+  font-family: 'Thunder', sans-serif;
+  font-weight: 400;
+}
+
+
+
+.pageborder{
+  background-image: url('./assets/images/Onboarding.png');
+  background-repeat: repeat-y;
+  background-position: center;
+}
+
+
+.borders{
+  background-image: url('./assets/images/borders.png');
+    background-repeat: repeat-y;
+    background-position: center;
+   width: 100%;
+}
+
+
+.memberbg{
+  background-image: url('./assets/images/memberbg.png');
+  background-size: cover;
+}
+
+.totalpointsbg{
+  background-image: url('./assets/images/totalpointsbg.png');
+  background-size: cover;
+}
+
+.aiagentbg{
+  background-image: url('./assets/images/aiagentbg.png');
+  background-size: cover;
+}
+
+.mintdetbg{
+  background-image: url('./assets//images/mintdetbg.png');
+  background-size: contain;
+}
+
+.SBTbg{
+  background-image: url('./assets//images/SBTbg.png');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.communitybg{
+  background-image: url('./assets//images/communityframe.png'), url('./assets//images/ne.png');
+  
+  background-blend-mode: multiply;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.dollarinnerbg {
+  width: 100%;
+  min-height: 195px;
+  background-image: url('./assets/images/dollarinnerbg.png'), url('./assets/images/noiseeffect2.png');
+  background-size: cover, auto;
+  background-repeat: no-repeat, repeat;
+  background-position: center, 0 0;
+  mix-blend-mode: luminosity;
+  
+  /* Centers content horizontally */
+  
+}
+html {
+  scroll-behavior: smooth;
+}
+.minifoot{
+  background-image: url('./assets//images/minifooter.png');
+}
+.hero {
+  background-image: url('./assets/images/noiseeffect.png');
+  mix-blend-mode: luminosity;
+  background-repeat: no-repeat;
+  background-position: top;
+  background-size: contain;
+}
+
+@media (max-width: 450px) {
+  .hero {
+    background-image: none;
+  }
+}
+@media (max-width: 640px) {
+
+  /* Tailwind's sm breakpoint */
+  .dollarinnerbg {
+    min-height: 195px;
+    /* Adjust the height dynamically */
+  }
+  .banner{
+    min-height:248.24px;
+  }
+}
+
+@media (min-width: 641px) {
+  .dollarinnerbg {
+    min-height: 250px;
+  }
+    .banner {
+      min-height: 300px;
+    }
+}
+
+
+
+
+.banner{
+  width: 100%;
+    min-height: 248.24px;
+  background-image: url('./assets/images/banner.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  mix-blend-mode: luminosity;
+}
+
+.noiseeffect{
+  background-image: url('./assets/images/noiseeffect2.png');
+    background-repeat: repeat;
+    background-size: auto;
+  mix-blend-mode: luminosity;
+}
+
+.pathbg {
+background-image: url('./assets/images/pathbg.png'), url('./assets/images/noiseeffect2.png');
+
+  background-size: auto, auto;
+  /* Ensure proper sizing */
+  background-repeat: no-repeat, repeat;
+  /* Noise effect should repeat */
+  background-position: center, 0 0;
+  /* Gradient covers whole, noise starts from top left */
+  mix-blend-mode: luminosity;
+}
+
+.borderwithnoise{
+  background-image: url('./assets/images/pageborder.png'), url('./assets/images/noiseeffect2.png');
+  
+    background-size: contain, auto;
+    /* Ensure proper sizing */
+    background-repeat: repeat-y, repeat;
+    /* Noise effect should repeat */
+    background-position: center, 0 0;
+    /* Gradient covers whole, noise starts from top left */
+    mix-blend-mode: luminosity;
+}
+@media (max-width: 767px) {
+
+  /* Before md (md = 768px) */
+  .borderwithnoise {
+    background-image: none !important;
+  }
+}
+
+.nebg{
+  background-image: url('./assets/images/noiseeffect.svg');
+    
+ background-position: center;
+    background-repeat:no-repeat;
+    mix-blend-mode: luminosity;
+}
+
+/* Ensure the border images are not displayed in the footer */
+.footer img {
+  display: none;
+}
