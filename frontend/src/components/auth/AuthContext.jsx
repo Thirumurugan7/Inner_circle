@@ -11,7 +11,10 @@ import {
   signInFailure,
   signOutSuccess,
 } from "../redux/user/userSlice";
-
+import {
+  AccountAbstractionProvider,
+  SafeSmartAccount,
+} from "@web3auth/account-abstraction-provider";
 
 // Web3Auth configuration
 const clientId =
@@ -22,6 +25,28 @@ const chainConfig = {
   rpcTarget:
     "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866",
 };
+
+export const accountAbstractionProvider = new AccountAbstractionProvider({
+  config: {
+    chainConfig,
+    bundlerConfig: {
+      // Get the pimlico API Key from dashboard.pimlico.io
+      url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
+      // This is just an example of how you can configure the paymaster context.
+      // Please refer to the documentation of the paymaster you are using
+      // to understand the required parameters.
+      paymasterContext: {
+        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        sponsorshipPolicyId: "sp_my_policy_id",
+      },
+    },
+    smartAccountInit: new SafeSmartAccount(),
+    paymasterConfig: {
+      // Get the pimlico API Key from dashboard.pimlico.io
+      url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
+    },
+  },
+});
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
@@ -47,6 +72,7 @@ export const AuthProvider = ({ children }) => {
           clientId,
           web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
           privateKeyProvider,
+          accountAbstractionProvider
         });
 
         setWeb3auth(web3authInstance);
@@ -67,13 +93,13 @@ export const AuthProvider = ({ children }) => {
             const walletAddress = accounts[0];
 
             // Retrieve user data from local storage if available
-            const storedUser = localStorage.getItem("authUser");
+            // const storedUser = localStorage.getItem("authUser");
             if (storedUser) {
               const userData = JSON.parse(storedUser);
               setUser(userData);
 
               // Also update Redux store
-              const token = localStorage.getItem("authToken");
+              // const token = localStorage.getItem("authToken");
               dispatch(signInSuccess({ user: userData, token }));
             } else {
               // If not in local storage, fetch from backend
@@ -89,11 +115,11 @@ export const AuthProvider = ({ children }) => {
 
                 if (response.status === 200 || response.status === 201) {
                   setUser(response.data.user);
-                  localStorage.setItem(
-                    "authUser",
-                    JSON.stringify(response.data.user)
-                  );
-                  localStorage.setItem("authToken", response.data.token);
+                  // localStorage.setItem(
+                  //   "authUser",
+                  //   JSON.stringify(response.data.user)
+                  // );
+                  // localStorage.setItem("authToken", response.data.token);
 
                   // Update Redux store
                   dispatch(signInSuccess(response.data));
@@ -160,8 +186,8 @@ export const AuthProvider = ({ children }) => {
         setUser(response.data.user);
 
         // Store auth data in localStorage for persistence
-        localStorage.setItem("authUser", JSON.stringify(response.data.user));
-        localStorage.setItem("authToken", response.data.token);
+        // localStorage.setItem("authUser", JSON.stringify(response.data.user));
+        // localStorage.setItem("authToken", response.data.token);
 
         // Update Redux store on successful sign-in
         dispatch(signInSuccess(response.data));
@@ -196,8 +222,8 @@ export const AuthProvider = ({ children }) => {
       setUser(null);
 
       // Clear localStorage
-      localStorage.removeItem("authUser");
-      localStorage.removeItem("authToken");
+      // localStorage.removeItem("authUser");
+      // localStorage.removeItem("authToken");
 
       // Dispatch Redux action on sign-out
       dispatch(signOutSuccess());

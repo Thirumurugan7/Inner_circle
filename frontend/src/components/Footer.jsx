@@ -4,15 +4,12 @@ import reachtop from "../assets/images/reachtop.svg";
 import { navigationData } from "../constant";
 
 const Footer = () => {
-  
-
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
-  
 
   return (
     <div>

@@ -12,9 +12,11 @@ const RequestPosted = () => {
           Your help requests are now live! The community can see and respond to
           your requests. Stay engaged and check back for updates.
         </p>
-        <button className="w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px] mt-[14.93px] sm:mt-[30px] cursor-pointer text-primary sm:w-[234px] sm:h-[50px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
-          <Link to="/dashboard">Go to Dashboard →</Link>
-        </button>
+        <Link to="/dashboard">
+          <button className="w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px] mt-[14.93px] sm:mt-[30px] cursor-pointer text-primary sm:w-[234px] sm:h-[50px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
+            Go to Dashboard →
+          </button>
+        </Link>
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ const HelpRequestTable = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 15; // Increased from 1 to a more reasonable number
+  const itemsPerPage = 15;
   const navigate = useNavigate();
 
   // Function to format the date as "Feb 17, 2025"
@@ -56,7 +56,7 @@ const HelpRequestTable = () => {
         const formattedData = response.data.helpRequests.map((request) => ({
           requestTitle: request.description,
           postedBy: request.user?.name || "Unknown",
-          walletAddress: request.user?.walletAddress || "", // Add wallet address
+          walletAddress: request.user?.walletAddress || "",
           telegram: request.telegram || "N/A",
           datePosted: formatDate(request.createdAt),
           category: request.category,
@@ -64,7 +64,7 @@ const HelpRequestTable = () => {
         }));
 
         setRequests(formattedData);
-        setFilteredRequests(formattedData); // Initially display all requests
+        setFilteredRequests(formattedData);
       } catch (error) {
         console.error("Error fetching requests:", error);
       } finally {
@@ -184,50 +184,105 @@ const HelpRequestTable = () => {
     );
   };
 
-  if (loading) return <p>Loading...</p>;
+  // Loading skeleton component for search bar
+  const SearchBarSkeleton = () => (
+    <div className="flex gap-[8.25px] sm:gap-[12px] items-center relative mt-[18px] sm:pt-[23px] lg:pt-[30px] xl:pt-[35px]">
+      <div
+        style={{
+          background:
+            "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
+        }}
+        className="w-[263px] h-[34.08px] gap-[6.09px] rounded-[2.43px] border-[0.61px] p-[9.74px] sm:w-[578.23px] sm:h-[49.59px] sm:gap-[8.85px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] sm:p-[14.17px] flex items-center opacity-50"
+      >
+        <div className="w-[14.61px] h-[14.61px] sm:h-[21px] sm:w-[21px] bg-twenty rounded-full animate-pulse"></div>
+        <div className="w-full h-[14.26px] sm:h-[20.75px] ml-2 bg-twenty rounded animate-pulse"></div>
+      </div>
+
+      <div
+        className="w-[34.08px] h-[34.08px] rounded-[2.43px] border-[0.61px] sm:w-[49.59px] sm:h-[49.59px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] p-[9.74px] sm:p-[14.17px] flex items-center opacity-50"
+        style={{
+          background:
+            "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
+        }}
+      >
+        <div className="w-[14.61px] h-[14.61px] sm:h-[21px] sm:w-[21px] bg-twenty rounded animate-pulse"></div>
+      </div>
+    </div>
+  );
+
+  // Loading skeleton for a table row
+  const SkeletonRow = () => (
+    <div className="relative border-twenty border-b-[0.55px] flex px-1 sm:px-5 justify-between items-center font-dmSans font-normal text-[8.93px] leading-[11.62px] tracking-[-0.04em] sm:text-[14px] md:text-[18px] sm:leading-[23.44px] text-center text-white py-3 sm:py-5">
+      <div className="w-[220px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+      <div className="w-[131px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+      <div className="w-[154px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+      <div className="w-[117px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+      <div className="w-[154px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+      <div className="w-[154px] h-4 sm:h-6 bg-twenty rounded animate-pulse mx-auto"></div>
+
+      {/* Row Bottom Dots */}
+      <div className="absolute left-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
+      <div className="absolute right-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
+    </div>
+  );
+
+  // Loading skeleton for pagination
+  const PaginationSkeleton = () => (
+    <div className="flex justify-center items-center space-x-1 mt-4">
+      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-twenty animate-pulse"></div>
+      <div className="w-8 h-6 sm:w-10 sm:h-8 rounded bg-twenty animate-pulse"></div>
+      <div className="w-8 h-6 sm:w-10 sm:h-8 rounded bg-twenty animate-pulse"></div>
+      <div className="w-8 h-6 sm:w-10 sm:h-8 rounded bg-twenty animate-pulse"></div>
+      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-twenty animate-pulse"></div>
+    </div>
+  );
 
   return (
     <div>
       {/* Search and Filter Section */}
-      <div className="flex gap-[8.25px] sm:gap-[12px] items-center relative mt-[18px] sm:pt-[23px] lg:pt-[30px] xl:pt-[35px]">
-        <div
-          style={{
-            background:
-              "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
-          }}
-          className="w-[263px] h-[34.08px] gap-[6.09px] rounded-[2.43px] border-[0.61px] p-[9.74px] sm:w-[578.23px] sm:h-[49.59px] sm:gap-[8.85px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] sm:p-[14.17px] flex items-center"
-        >
-          <img
-            src={search}
-            alt=""
-            className="w-[14.61px] h-[14.61px] sm:h-fit sm:w-fit"
-          />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={handleSearch}
-            placeholder="Search for Members"
-            className="w-full focus:outline-none font-dmSans font-medium text-[10.96px] leading-[14.26px] tracking-[-0.04em] sm:text-[15.94px] sm:leading-[20.75px] sm:tracking-[-0.04em] placeholder:text-seventy text-primary"
-          />
-        </div>
-
-        {/* Filter Button */}
-        <div className="relative">
+      {loading ? (
+        <SearchBarSkeleton />
+      ) : (
+        <div className="flex gap-[8.25px] sm:gap-[12px] items-center relative mt-[18px] sm:pt-[23px] lg:pt-[30px] xl:pt-[35px]">
           <div
-            className="w-[34.08px] h-[34.08px] rounded-[2.43px] border-[0.61px] sm:w-[49.59px] sm:h-[49.59px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] p-[9.74px] sm:p-[14.17px] flex items-center cursor-pointer"
             style={{
               background:
                 "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
             }}
+            className="w-[263px] h-[34.08px] gap-[6.09px] rounded-[2.43px] border-[0.61px] p-[9.74px] sm:w-[578.23px] sm:h-[49.59px] sm:gap-[8.85px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] sm:p-[14.17px] flex items-center"
           >
             <img
-              src={filter}
+              src={search}
               alt=""
               className="w-[14.61px] h-[14.61px] sm:h-fit sm:w-fit"
             />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={handleSearch}
+              placeholder="Search for Members"
+              className="w-full focus:outline-none font-dmSans font-medium text-[10.96px] leading-[14.26px] tracking-[-0.04em] sm:text-[15.94px] sm:leading-[20.75px] sm:tracking-[-0.04em] placeholder:text-seventy text-primary"
+            />
+          </div>
+
+          {/* Filter Button */}
+          <div className="relative">
+            <div
+              className="w-[34.08px] h-[34.08px] rounded-[2.43px] border-[0.61px] sm:w-[49.59px] sm:h-[49.59px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] p-[9.74px] sm:p-[14.17px] flex items-center cursor-pointer"
+              style={{
+                background:
+                  "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
+              }}
+            >
+              <img
+                src={filter}
+                alt=""
+                className="w-[14.61px] h-[14.61px] sm:h-fit sm:w-fit"
+              />
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-[18px] sm:pt-[23px] lg:pt-[30px] xl:pt-[35px]">
         <div className="w-full xl:w-[1137.73px]">
@@ -246,45 +301,56 @@ const HelpRequestTable = () => {
             <div className="absolute right-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
           </div>
 
-          {/* Table Rows or Not Found Message */}
-          {filteredRequests.length > 0 ? (
-            <div>
-              {currentItems.map((record, index) => (
-                <div
-                  key={index}
-                  className="relative border-twenty border-b-[0.55px] flex px-1 sm:px-5 justify-between items-center font-dmSans font-normal text-[8.93px] leading-[11.62px] tracking-[-0.04em] sm:text-[14px] md:text-[18px] sm:leading-[23.44px] text-center text-white py-3 sm:py-5"
-                >
-                  <div className="w-[220px] capitalize">
-                    {record?.requestTitle}
-                  </div>
+          {/* Table Rows or Loading State */}
+          {loading ? (
+            <>
+              {Array(5)
+                .fill(0)
+                .map((_, index) => (
+                  <SkeletonRow key={`skeleton-${index}`} />
+                ))}
+              <PaginationSkeleton />
+            </>
+          ) : filteredRequests.length > 0 ? (
+            <>
+              <div>
+                {currentItems.map((record, index) => (
                   <div
-                    className="w-[131px] cursor-pointer hover:underline"
-                    onClick={() => handleUserClick(record?.walletAddress)}
+                    key={index}
+                    className="relative border-twenty border-b-[0.55px] flex px-1 sm:px-5 justify-between items-center font-dmSans font-normal text-[8.93px] leading-[11.62px] tracking-[-0.04em] sm:text-[14px] md:text-[18px] sm:leading-[23.44px] text-center text-white py-3 sm:py-5"
                   >
-                    {record.postedBy}
+                    <div className="w-[220px] capitalize">
+                      {record?.requestTitle}
+                    </div>
+                    <div
+                      className="w-[131px] cursor-pointer hover:underline capitalize"
+                      onClick={() => handleUserClick(record?.walletAddress)}
+                    >
+                      {record.postedBy}
+                    </div>
+                    <div className="w-[154px]">{record?.telegram}</div>
+                    <div className="w-[117px]">{record?.datePosted}</div>
+                    <div className="w-[154px]">{record?.category}</div>
+                    <div
+                      className={`w-[154px] ${getUrgencyColor(
+                        record?.urgency
+                      )}`}
+                    >
+                      {record?.urgency}
+                    </div>
+                    {/* Row Bottom Dots */}
+                    <div className="absolute left-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
+                    <div className="absolute right-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
                   </div>
-                  <div className="w-[154px]">{record?.telegram}</div>
-                  <div className="w-[117px]">{record?.datePosted}</div>
-                  <div className="w-[154px]">{record?.category}</div>
-                  <div
-                    className={`w-[154px] ${getUrgencyColor(record?.urgency)}`}
-                  >
-                    {record?.urgency}
-                  </div>
-                  {/* Row Bottom Dots */}
-                  <div className="absolute left-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
-                  <div className="absolute right-0 -bottom-[2px] sm:-bottom-[3px] w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+              {renderPagination()}
+            </>
           ) : (
             <div className="text-center text-white py-10 text-[14px] sm:text-[18px]">
               Members not found
             </div>
           )}
-
-          {/* Pagination */}
-          {renderPagination()}
         </div>
       </div>
     </div>

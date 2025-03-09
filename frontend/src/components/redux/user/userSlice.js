@@ -36,7 +36,7 @@ const userSlice = createSlice({
       state.currentUser = updatedUser;
 
       // Sync with localStorage to prevent data reset on reload
-      localStorage.setItem("authUser", JSON.stringify(updatedUser.user));
+     // localStorage.setItem("authUser", JSON.stringify(updatedUser.user));
     },
   },
 });

@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 import PostData from "../components/PostData";
 import HelpedData from "../components/HelpedData";
 import axios from "axios";
+import bell from '../assets/images/bell.svg'
 
 const MemberDashboard = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
@@ -99,7 +100,7 @@ useEffect(() => {
                   #IC-{userData?.sbtId}
                 </p>
                 <p className="h-[17px] sm:h-[12px] lg:h-[19px]">
-                  [Polygon / Ethereum / Custom]
+                  [Base]
                 </p>
               </div>
             </div>
@@ -180,6 +181,24 @@ useEffect(() => {
             </p>
           </div>
         </div>
+        {/* Only show this notification if user has less than 15 points */}
+        {userData?.pointsReceived < 15 && (
+          <div className="w-fit h-fit bg-[#FFFFFF14] mb-[40px] flex items-center rounded-[10px] border-[#FFFFFF33] border-[1px] p-[5px_5px_5px_15px] gap-[10px]">
+            <img src={bell} alt="" />
+            <p className="font-medium font-dmSans text-[16px] text-primary leading-[24.41px] tracking-[-0.02em]">
+              You need{" "}
+              <span className="font-bold">
+                {15 - (userData?.pointsReceived || 0)} more points
+              </span>{" "}
+              to stay active!
+            </p>
+            <Link to="/ask-for-help">
+              <button className="w-[144px] h-[42.08px] rounded-[9.35px] gap-[7.26px] p-[9.35px] bg-primary cursor-pointer text-black font-dmSans font-medium text-[14px] leading-[22px]">
+                Ask for Help Now
+              </button>
+            </Link>
+          </div>
+        )}
         <div className="flex flex-wrap gap-[21.66px] mt-[15px] lg:mt-[20px] justify-between">
           <div className="flex flex-col gap-[15px]">
             <div className="flex gap-[6.88px] sm:gap-[5.86px] lg:gap-[10px] items-center">
@@ -198,12 +217,16 @@ useEffect(() => {
             </p>
           </div>
           <div className="flex gap-[6.43px] lg:gap-[10px]">
-            <button className="w-[98.86px] h-[24.95px] gap-[4.99px] rounded-[4.99px] border-[0.39px]  px-[6.43px]  text-[10.29px] leading-[15.69px] tracking-[0em] text-black font-dm-sans font-medium sm:text-[10.32px] sm:leading-[18.42px] sm:tracking-[0px] lg:text-[16px] lg:leading-[24.41px] lg:tracking-[0] bg-primary lg:w-[149px] lg:h-[38.81px] sm:gap-[7.76px] lg:rounded-[7.76px]  flex items-center justify-center">
-              <Link to="/member-requests"> View All Requests</Link>
-            </button>
-            <button className="w-[98.86px] h-[24.95px] gap-[4.99px] rounded-[4.99px] border-[0.39px]  px-[6.43px]  text-[10.29px] leading-[15.69px] tracking-[0em] font-dmSans font-medium lg:text-[16px] sm:text-[10.32px] sm:leading-[18.42px] lg:leading-[24.41px] cursor-pointer text-primary  lg:w-[149px] lg:h-[38.81px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:border-[1px] border-white flex items-center justify-center">
-              <Link to="/ask-for-help">Ask for Help Now</Link>
-            </button>
+            <Link to="/member-requests">
+              <button className="w-[98.86px] h-[24.95px] gap-[4.99px] rounded-[4.99px] border-[0.39px]  px-[6.43px]  text-[10.29px] leading-[15.69px] tracking-[0em] text-black font-dm-sans font-medium sm:text-[10.32px] sm:leading-[18.42px] sm:tracking-[0px] lg:text-[16px] lg:leading-[24.41px] lg:tracking-[0] bg-primary lg:w-[149px] lg:h-[38.81px] sm:gap-[7.76px] lg:rounded-[7.76px]  flex items-center justify-center">
+                View All Requests
+              </button>
+            </Link>
+            <Link to="/ask-for-help">
+              <button className="w-[98.86px] h-[24.95px] gap-[4.99px] rounded-[4.99px] border-[0.39px]  px-[6.43px]  text-[10.29px] leading-[15.69px] tracking-[0em] font-dmSans font-medium lg:text-[16px] sm:text-[10.32px] sm:leading-[18.42px] lg:leading-[24.41px] cursor-pointer text-primary  lg:w-[149px] lg:h-[38.81px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:border-[1px] border-white flex items-center justify-center">
+                Ask for Help Now
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -227,19 +250,19 @@ useEffect(() => {
               impact.
             </p>
           </div>
-          <button className="text-black cursor-pointer flex flex-row items-center justify-center bg-primary w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] sm:text-[10.32px] sm:leading-[18.42px] sm:tracking-[0px] lg:text-[16px] lg:leading-[24.41px] tracking-[0] lg:w-[200.42px] lg:h-[50px] lg:gap-[7px] lg:rounded-[7.76px] lg:p-[7.67px] sm:w-[128.64px] sm:h-[29.29px]  sm:rounded-[5.86px] sm:p-[5.86px]">
-            <Link
-              to="/points-allocation"
-              className="flex items-center gap-[3.86px] sm:gap-[4px] lg:gap-[7.76px]"
-            >
+          <Link
+            to="/points-allocation"
+            className="flex items-center gap-[3.86px] sm:gap-[4px] lg:gap-[7.76px]"
+          >
+            <button className="text-black cursor-pointer flex flex-row items-center justify-center bg-primary w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] sm:text-[10.32px] sm:leading-[18.42px] sm:tracking-[0px] lg:text-[16px] lg:leading-[24.41px] tracking-[0] lg:w-[200.42px] lg:h-[50px] lg:gap-[7px] lg:rounded-[7.76px] lg:p-[7.67px] sm:w-[128.64px] sm:h-[29.29px]  sm:rounded-[5.86px] sm:p-[5.86px]">
               <img
                 src={pluscircle}
                 alt=""
                 className="h-[14.81px] w-[14.81px] sm:w-[14.06px] sm:h-[14.06px] lg:h-fit lg:w-fit"
               />
               <span>Allocate Points Now</span>
-            </Link>
-          </button>
+            </button>
+          </Link>
         </div>
 
         {/* helped data */}

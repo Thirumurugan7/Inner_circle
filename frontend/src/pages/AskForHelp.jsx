@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import axios from "axios"; 
+import axios from "axios";
 import chevronleft from "../assets/images/chevronleft.svg";
 import chevrondown from "../assets/images/chevrondown.svg";
 import blackdownchevron from "../assets/images/blackdownchevron.svg";
@@ -9,13 +9,14 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 const AskForHelp = () => {
-   const [description, setDescription] = useState("");
+  const [description, setDescription] = useState("");
   const [selectedUrgency, setSelectedUrgency] = useState(null);
   const [selectedCategory, setSelectedCategory] = useState("Select category");
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
-  const navigate = useNavigate()
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const navigate = useNavigate();
   const dropdownRef = useRef(null);
   const currentUser = useSelector((state) => state.user.currentUser);
   const Category = [
@@ -44,69 +45,78 @@ const AskForHelp = () => {
     };
   }, []);
 
-     const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({});
 
+  const handleSubmit = async () => {
+    // Don't process if already submitted or loading
+    if (loading || isSubmitted) return;
 
- const handleSubmit = async () => {
-   const newErrors = {
-     description: !description,
-     category: selectedCategory === "Select category",
-     urgency: !selectedUrgency,
-   };
+    const newErrors = {
+      description: !description,
+      category: selectedCategory === "Select category",
+      urgency: !selectedUrgency,
+    };
 
-   setErrors(newErrors);
+    setErrors(newErrors);
 
-   if (Object.values(newErrors).some((error) => error)) {
-     setMessage({ type: "error", text: "Please fill all required fields." });
-     return;
-   }
+    if (Object.values(newErrors).some((error) => error)) {
+      setMessage({ type: "error", text: "Please fill all required fields." });
+      return;
+    }
 
-   setLoading(true);
-   setMessage(null);
-   const token = currentUser.token;
+    setLoading(true);
+    setMessage(null);
+    const token = currentUser.token;
 
-   try {
-     const userId = currentUser.user._id;
-     const telegram = currentUser.user.telegram;
+    try {
+      const userId = currentUser.user._id;
+      const telegram = currentUser.user.telegram;
 
-     const response = await axios.post(
-       "http://localhost:5000/api/helprequest/",
-       {
-         userId,
-         telegram,
-         description,
-         urgency: selectedUrgency,
-         category: selectedCategory,
-       },
-       {
-         headers: { Authorization: `Bearer ${token}` },
-       }
-     );
+      const response = await axios.post(
+        "http://localhost:5000/api/helprequest/",
+        {
+          userId,
+          telegram,
+          description,
+          urgency: selectedUrgency,
+          category: selectedCategory,
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
 
-     setMessage({ type: "success", text: response.data.message });
-     navigate("/regular-request-posted");
-     setDescription("");
-     setSelectedCategory("Select category");
-     setSelectedUrgency(null);
-   } catch (error) {
-     setMessage({ type: "error", text: "Try Again" });
-   } finally {
-     setLoading(false);
-   }
- };
+      setMessage({ type: "success", text: response.data.message });
+      setIsSubmitted(true);
+      navigate("/regular-request-posted");
+      setDescription("");
+      setSelectedCategory("Select category");
+      setSelectedUrgency(null);
+    } catch (error) {
+      setMessage({ type: "error", text: "Try Again" });
+      setIsSubmitted(false); // Reset submitted state on error
+    } finally {
+      setLoading(false);
+    }
+  };
 
- // Auto-hide message after a few seconds
- useEffect(() => {
-   if (message) {
-     const timer = setTimeout(() => {
-       setMessage(null);
-     }, 3000); // Hides the message after 3 seconds
+  // Auto-hide message after a few seconds
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(() => {
+        setMessage(null);
+      }, 3000); // Hides the message after 3 seconds
 
-     return () => clearTimeout(timer); // Cleanup on unmount or new message
-   }
- }, [message]);
+      return () => clearTimeout(timer); // Cleanup on unmount or new message
+    }
+  }, [message]);
 
-
+  // Reset the submitted state if any field changes
+  useEffect(() => {
+    if (isSubmitted) {
+      setIsSubmitted(false);
+    }
+  }, [description, selectedCategory, selectedUrgency]);
 
   return (
     <div className="flex flex-col justify-center items-center w-full px-[23px] sm:px-[60px] lg:px-[80px] h-full min-h-screen">
@@ -259,15 +269,18 @@ const AskForHelp = () => {
         {/* Submit Button */}
         <button
           onClick={handleSubmit}
-          className="text-black cursor-pointer w-[121.68px] h-[29.9px] gap-[5.16px] rounded-[5.16px] p-[6.64px] 
-  font-dmSans font-medium text-[10.63px] leading-[16.22px]  lg:text-[16px] lg:leading-[24.41px] bg-primary lg:w-[182.17px] lg:h-[45px] lg:rounded-[7.76px] lg:p-[10px] flex items-center lg:gap-1 justify-center"
+          disabled={loading || isSubmitted}
+          className={`text-black w-[121.68px] h-[29.9px] gap-[5.16px] rounded-[5.16px] p-[6.64px] 
+  font-dmSans font-medium text-[10.63px] leading-[16.22px] lg:text-[16px] lg:leading-[24.41px] bg-primary lg:w-[182.17px] lg:h-[45px] lg:rounded-[7.76px] lg:p-[10px] flex items-center lg:gap-1 justify-center ${
+    loading || isSubmitted ? "opacity-50 " : "cursor-pointer"
+  }`}
         >
           <img
             src={pluscircle}
             alt=""
             className="h-[12.23px] w-[12.23px] lg:h-[18.41px] lg:w-[18.41px]"
           />
-          Post Your Request
+          {loading ? "Posting..." : "Post Your Request"}
         </button>
       </div>
     </div>

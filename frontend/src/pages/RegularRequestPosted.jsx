@@ -13,12 +13,16 @@ const RegularRequestPosted = () => {
           support. Keep an eye on responses and engage with your community
         </p>
         <div className="flex gap-[9.95px] sm:gap-[20px] mt-[14.93px] sm:mt-[30px]">
-          <button className="font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  w-[116.45px] h-[24.88px] sm:w-[234px] sm:h-[50px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
-            <Link to="/member-requests">View All Member Requests</Link>
-          </button>
-          <button className="font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  w-[116.45px] h-[24.88px] sm:w-[234px] sm:h-[50px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
-            <Link to="/dashboard"> Go to Dashboard</Link>
-          </button>
+          <Link to="/member-requests">
+            <button className="font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  w-[116.45px] h-[24.88px] sm:w-[234px] sm:h-[50px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
+              View All Member Requests
+            </button>
+          </Link>
+          <Link to="/dashboard">
+            <button className="font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  w-[116.45px] h-[24.88px] sm:w-[234px] sm:h-[50px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:p-[10px]">
+              Go to Dashboard
+            </button>
+          </Link>
         </div>
       </div>
     </div>

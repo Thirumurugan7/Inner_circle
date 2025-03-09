@@ -15,6 +15,7 @@ const Layout = () => {
     "/sbt-mint",
     "/referral",
     "/predefined-help-request",
+    "/sbt-minted-Successfully",
   ];
 
   const miniFooterRoutes = [
@@ -26,6 +27,7 @@ const Layout = () => {
     "/",
     "/request-posted",
     "/regular-request-posted",
+    "/sbt-minted-Successfully",
   ];
   const noiseBgRoutes = ["/", "/referral", "/signin"]; // Routes with noise background
 

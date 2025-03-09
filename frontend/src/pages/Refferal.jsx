@@ -103,9 +103,11 @@ const Refferal = () => {
             <div className=" font-dmSans text-[22px] text-center text-primary lg:text-[38px]">
               Referral code Verified!
             </div>
-            <button className="text-white font-dm-sans font-medium text-[11.41px] border-[1px] border-primary leading-[17.41px] lg:text-[16px] lg:leading-[24.41px] bg-black  h-[35.66px]   lg:h-[50px] rounded-[7.76px] p-[7.13px] lg:p-[10px] lg:py-[8px] cursor-pointer w-fit">
-              <Link to='/'> Back Home</Link>
-            </button>
+            <Link to="/">
+              <button className="text-white font-dm-sans font-medium text-[11.41px] border-[1px] border-primary leading-[17.41px] lg:text-[16px] lg:leading-[24.41px] bg-black  h-[35.66px]   lg:h-[50px] rounded-[7.76px] p-[7.13px] lg:p-[10px] lg:py-[8px] cursor-pointer w-fit">
+                Back Home
+              </button>
+            </Link>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-[18.45px] lg:gap-[30px]">

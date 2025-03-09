@@ -155,32 +155,44 @@ const Profile = () => {
             Personal info
           </p>
           <div className="flex flex-col gap-[11.56px] sm:gap-[11.72px] lg:gap-[15px] md:gap-[20px] font-normal text-[12.71px] leading-[16.55px] tracking-[-0.51px] font-dmSans  sm:text-[12.89px] sm:leading-[16.78px] sm:tracking-[-0.52px] lg:text-[22px] lg:leading-[28.64px] lg:tracking-[-0.04em]">
-            <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
-                Name
-              </p>
-              <p className=" text-sixty sm:w-fit">{userData?.name}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
-                Role
-              </p>
-              <p className=" text-sixty w-fit">{userData?.role}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
-                Email Id
-              </p>
-              <p className=" text-sixty w-fit">{userData?.email}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
-                Wallet Address
-              </p>
-              <p className=" text-sixty break-words w-fit  max-w-[200px] sm:max-w-full">
-                {currentUser?.user?.walletAddress}
-              </p>
-            </div>
+            {currentUser?.user?.name && (
+              <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
+                  Name
+                </p>
+                <p className=" text-sixty sm:w-fit">
+                  {currentUser?.user?.name}
+                </p>
+              </div>
+            )}
+            {currentUser?.user?.role && (
+              <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
+                  Role
+                </p>
+                <p className=" text-sixty w-fit">{currentUser?.user?.role}</p>
+              </div>
+            )}
+            {currentUser?.user?.email && (
+              <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
+                  Email Id
+                </p>
+                <p className=" text-sixty w-fit">
+                  {currentUser?.user?.email}
+                </p>
+              </div>
+            )}
+            {currentUser?.user?.walletAddress && (
+              <div className="flex gap-[62.41px] sm:gap-[80px]  md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
+                  Wallet Address
+                </p>
+                <p className=" text-sixty break-words w-fit  max-w-[200px] sm:max-w-full">
+                  {currentUser?.user?.walletAddress}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -190,30 +202,46 @@ const Profile = () => {
             Social Links
           </p>
           <div className="flex flex-col gap-[11.56px] sm:gap-[11.72px] lg:gap-[15px] md:gap-[20px] font-normal text-[12.71px] leading-[16.55px] tracking-[-0.51px] font-dmSans  sm:text-[12.89px] sm:leading-[16.78px] sm:tracking-[-0.52px] lg:text-[22px] lg:leading-[28.64px] lg:tracking-[-0.04em">
-            <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
-                Twitter
-              </p>
-              <p className=" text-sixty w-fit ">{userData?.twitterId}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
-                Github
-              </p>
-              <p className=" text-sixty w-fit ">{userData?.github}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
-                Website
-              </p>
-              <p className=" text-sixty w-fit ">{userData?.website}</p>
-            </div>
-            <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
-              <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
-                Telegram
-              </p>
-              <p className=" text-sixty w-fit ">{userData?.telegram}</p>
-            </div>
+            {currentUser?.user?.twitterId &&
+              <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
+                  Twitter
+                </p>
+                <p className=" text-sixty w-fit ">
+                  {currentUser?.user?.twitterId}
+                </p>
+              </div>
+            }
+            {currentUser?.user?.github &&
+              <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
+                  Github
+                </p>
+                <p className=" text-sixty w-fit ">
+                  {currentUser?.user?.github}
+                </p>
+              </div>
+            }
+            { currentUser?.user?.website &&
+              <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
+                  Website
+                </p>
+                <p className=" text-sixty w-fit ">
+                  {currentUser?.user?.website}
+                </p>
+              </div>
+            }
+            { currentUser?.user?.telegram &&
+              <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
+                <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
+                  Telegram
+                </p>
+                <p className=" text-sixty w-fit ">
+                  {currentUser?.user?.telegram}
+                </p>
+              </div>
+            }
           </div>
         </div>
 
@@ -224,7 +252,7 @@ const Profile = () => {
           </p>
           <div className="flex flex-col gap-[11.56px] sm:gap-[11.72px] lg:gap-[15px] md:gap-[20px] font-normal text-[12.71px] leading-[16.55px] tracking-[-0.51px] font-dmSans  sm:text-[12.89px] sm:leading-[16.78px] sm:tracking-[-0.52px] lg:text-[22px] lg:leading-[28.64px] lg:tracking-[-0.04em">
             <div className="flex gap-[40.45px] sm:gap-[60px] md:gap-[70px] items-center">
-              <p className=" text-primary w-[106px] sm:w-[143px] md:w-[183px]">
+              <p className=" text-primary w-[106px] sm:w-[143px] md:w-[184px]">
                 Total Points Earned
               </p>
               <p className=" text-sixty w-fit">
@@ -271,7 +299,10 @@ const Profile = () => {
           <p className="font-dmSans font-medium italic  text-[16.18px] leading-[21.07px] tracking-[-0.65px] sm:text[16.4px] sm:leading-[21.36px] sm:tracking-[-0.66px] lg:text-[28px] lg:leading-[36.46px]  underline decoration-solid decoration-auto decoration-[auto] decoration-skip-ink-auto text-primary">
             Recent Points History
           </p>
-          <PointsandContribution pointsHistory={pointsHistory} Loading={Loading}/>
+          <PointsandContribution
+            pointsHistory={pointsHistory}
+            Loading={Loading}
+          />
         </div>
         {/* logout */}
         <div className="flex gap-[10px]">

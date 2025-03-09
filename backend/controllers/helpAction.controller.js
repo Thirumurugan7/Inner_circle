@@ -32,6 +32,30 @@ export const allocatePoints = async (req, res) => {
         .json({ success: false, message: "Not enough points available" });
     }
 
+    // Calculate the date 30 days ago from now
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    
+    // Find help actions from this user to the recipient in the last 30 days
+    const recentActions = await HelpAction.find({
+      helpedUser: helpedUser._id,
+      helpedBy: helpedBy._id,
+      createdAt: { $gte: thirtyDaysAgo }
+    });
+    
+    // Calculate total points already allocated to this user in the last 30 days
+    const pointsAlreadyAllocated = recentActions.reduce(
+      (total, action) => total + action.pointsAllocated, 0
+    );
+    
+    // Check if allocating these points would exceed the 5-point limit
+    if (pointsAlreadyAllocated + points > 5) {
+      return res.status(400).json({ 
+        success: false, 
+        message: `You can only allocate 5 points to each user within a 30-day period. You have already allocated ${pointsAlreadyAllocated} points to this user in the last 30 days.`
+      });
+    }
+
     // Deduct points from the giver (helpedUser)
     helpedUser.monthlyPoints -= points;
     helpedUser.pointsAllocated += points;
@@ -39,38 +63,40 @@ export const allocatePoints = async (req, res) => {
     // Add points to the receiver (helpedBy)
     helpedBy.totalPoints += points;
     helpedBy.pointsReceived += points;
+    
     // Update the receiver's data using `$inc` to prevent race conditions
-   if (helpedBy.categoryContribution instanceof Map) {
-     helpedBy.categoryContribution = Object.fromEntries(
-       helpedBy.categoryContribution
-     );
-   }
+    if (helpedBy.categoryContribution instanceof Map) {
+      helpedBy.categoryContribution = Object.fromEntries(
+        helpedBy.categoryContribution
+      );
+    }
 
-   // Initialize category if missing
-   if (
-     !Object.prototype.hasOwnProperty.call(
-       helpedBy.categoryContribution,
-       category
-     )
-   ) {
-     helpedBy.categoryContribution[category] = 0;
-   }
+    // Initialize category if missing
+    if (
+      !Object.prototype.hasOwnProperty.call(
+        helpedBy.categoryContribution,
+        category
+      )
+    ) {
+      helpedBy.categoryContribution[category] = 0;
+    }
 
-   // Increment category contribution
-   helpedBy.categoryContribution[category] += 1;
+    // Increment category contribution
+    helpedBy.categoryContribution[category] += 1;
 
-   // Mark categoryContribution as modified
-   helpedBy.markModified("categoryContribution");
+    // Mark categoryContribution as modified
+    helpedBy.markModified("categoryContribution");
 
-   // Increment `topcontribution`
-   helpedBy.topcontribution += 1;
+    // Increment `topcontribution`
+    helpedBy.topcontribution += 1;
 
-   // Save helpedBy user
-   await helpedBy.save();
+    // Save helpedBy user
+    await helpedBy.save();
 
     // Debugging logs
     console.log("Updated categoryContribution:", helpedBy.categoryContribution);
     console.log("Updated topcontribution:", helpedBy.topcontribution);
+    
     // Check if user remains active
     helpedUser.isActive =
       helpedUser.pointsAllocated >= 25 && helpedUser.pointsReceived >= 15;

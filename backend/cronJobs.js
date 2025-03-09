@@ -1,101 +1,126 @@
-
 import cron from "node-cron";
 import User from "./models/user.model.js";
 
-// Run once per day at midnight (0 0 * * *)
-cron.schedule("0 0 * * *", async () => {
+// Run every minute (* * * * *)
+cron.schedule("* * * * *", async () => {
   try {
     const now = new Date();
-    
-    // Get all users
-    const allUsers = await User.find();
-    console.log(`Running daily check for ${allUsers.length} users at ${now.toISOString()}`);
-    
+
+    // Get all users that need evaluation now
+    // This query optimization avoids processing all users every minute
+    const usersToEvaluate = await User.find({
+      $or: [
+        { nextScheduledUpdate: { $lte: now } },
+        {
+          nextScheduledUpdate: { $exists: false },
+          lastReset: { $lte: new Date(now - 5 * 60 * 1000) }, // 5 minutes in milliseconds
+        },
+        {
+          nextScheduledUpdate: { $exists: false },
+          lastReset: { $exists: false },
+          createdAt: { $lte: new Date(now - 5 * 60 * 1000) }, // 5 minutes in milliseconds
+        },
+      ],
+    });
+
+    console.log(
+      `Running 5-minute evaluation for ${
+        usersToEvaluate.length
+      } eligible users at ${now.toISOString()}`
+    );
+
     // Process each user
     let updatedCount = 0;
-    
-    for (const user of allUsers) {
-      // Check if this user is due for a 30-day evaluation
-      const shouldUpdate = shouldUpdateUser(user, now);
-      
-      if (shouldUpdate) {
-        console.log(`User ${user._id} is due for 30-day evaluation`);
-        
-        // Check activity criteria
-        if (user.pointsAllocated < 25 || user.pointsReceived < 15) {
-          user.isActive = false;
-          console.log(`User ${user._id} marked as inactive due to insufficient activity`);
-        } else {
-          user.isActive = true;
-          console.log(`User ${user._id} maintained active status`);
-        }
+    let activatedCount = 0;
+    let deactivatedCount = 0;
 
-        // Reset data
-        user.monthlyPoints = 40;
-        user.pointsAllocated = 0;
-        user.pointsReceived = 0;
-        
-        // Set lastReset to now with a new Date object
-        user.lastReset = new Date();
-        
-        // Calculate the next scheduled update time (30 days from now)
-        user.nextScheduledUpdate = getNextUpdateTime(now);
-        
-        await user.save();
-        updatedCount++;
-        
-        console.log(`Updated user: ${user._id}, next evaluation scheduled for: ${user.nextScheduledUpdate.toISOString()}`);
+    for (const user of usersToEvaluate) {
+      console.log(
+        `Evaluating user ${user._id}: pointsAllocated=${user.pointsAllocated}, pointsReceived=${user.pointsReceived}`
+      );
+
+      // Store previous state for logging
+      const wasActive = user.isActive;
+
+      // Check activity criteria
+      if (user.pointsAllocated < 25 || user.pointsReceived < 15) {
+        user.isActive = false;
+        if (wasActive) deactivatedCount++;
+      } else {
+        user.isActive = true;
+        if (!wasActive) activatedCount++;
       }
-    }
+      // Reset data for the next cycle
+      user.monthlyPoints = 40;
+      user.pointsAllocated = 0;
+      user.pointsReceived = 0;
 
-    if (updatedCount > 0) {
-      console.log(`Updated ${updatedCount} users in this run.`);
-    } else {
-      console.log("No users were due for evaluation today.");
+      // Set lastReset to now
+      user.lastReset = new Date();
+
+      // Calculate the next scheduled update time (5 minutes from now)
+      user.nextScheduledUpdate = new Date(now.getTime() + 5 * 60 * 1000);
+
+      await user.save();
+      updatedCount++;
+
+      console.log(
+        `Updated user: ${user._id}, status: ${
+          wasActive ? "active" : "inactive"
+        } → ${user.isActive ? "active" : "inactive"}, ` +
+          `next evaluation: ${user.nextScheduledUpdate.toISOString()}`
+      );
     }
+    console.log(
+      `Evaluation summary: ${updatedCount} users processed, ${activatedCount} activated, ${deactivatedCount} deactivated`
+    );
   } catch (error) {
-    console.error("Error during daily user evaluation:", error);
+    console.error("Error during 5-minute user evaluation:", error);
+    // Consider adding notification for critical errors
   }
 });
 
 /**
- * Determines if a user should be updated based on their 30-day cycle
- * @param {Object} user - User document from MongoDB
- * @param {Date} currentTime - Current timestamp
- * @returns {boolean} - Whether the user should be updated
+ * For individual user evaluation outside the scheduled job
+ * @param {string} userId - ID of the user to evaluate
+ * @returns {Object} - Result of the evaluation
  */
-function shouldUpdateUser(user, currentTime) {
-  // If the user has a nextScheduledUpdate field, use that as the primary check
-  if (user.nextScheduledUpdate) {
-    return currentTime >= user.nextScheduledUpdate;
-  }
-  
-  // For users with lastReset but no nextScheduledUpdate (legacy users)
-  if (user.lastReset) {
-    // Check if it's been at least 30 days since the last reset
-    const timeSinceLastReset = currentTime - user.lastReset;
-    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-    return timeSinceLastReset >= thirtyDaysInMs;
-  }
-  
-  // For new users with no reset history, check if it's been 30 days since creation
-  if (user.createdAt) {
-    const timeSinceCreation = currentTime - user.createdAt;
-    const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-    return timeSinceCreation >= thirtyDaysInMs;
-  }
-  
-  // If we can't determine based on the above, default to true to be safe
-  return true;
-}
+export async function evaluateUserActivity(userId) {
+  try {
+    const now = new Date();
+    const user = await User.findById(userId);
 
-/**
- * Calculate the next update time (30 days from now)
- * @param {Date} currentTime - Current timestamp
- * @returns {Date} - Next scheduled update time
- */
-function getNextUpdateTime(currentTime) {
-  const nextTime = new Date(currentTime);
-  nextTime.setDate(nextTime.getDate() + 30); // Add 30 days
-  return nextTime;
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const previousStatus = user.isActive;
+
+    // Check activity criteria
+    if (user.pointsAllocated < 25 || user.pointsReceived < 15) {
+      user.isActive = false;
+    } else {
+      user.isActive = true;
+    }
+
+    // Reset data
+    user.monthlyPoints = 40;
+    user.pointsAllocated = 0;
+    user.pointsReceived = 0;
+    user.lastReset = new Date();
+    user.nextScheduledUpdate = new Date(now.getTime() + 5 * 60 * 1000); // 5 minutes from now
+
+    await user.save();
+
+    return {
+      success: true,
+      userId: user._id,
+      previousStatus,
+      currentStatus: user.isActive,
+      nextEvaluation: user.nextScheduledUpdate,
+    };
+  } catch (error) {
+    console.error(`Error evaluating user ${userId}:`, error);
+    return { success: false, message: error.message };
+  }
 }

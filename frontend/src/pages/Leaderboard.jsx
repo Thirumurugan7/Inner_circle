@@ -13,6 +13,7 @@ const Leaderboard = () => {
   const [contributions, setContributions] = useState([]);
   const Category = ["Weekly", "Monthly", "All-Time"];
   const [searchQuery, setSearchQuery] = useState(""); // State for search input
+  const [loading, setLoading] = useState(false);
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -27,29 +28,32 @@ const Leaderboard = () => {
     };
   }, []);
   useEffect(() => {
-    const fetchContributors = async () => {
-      try {
-        // Convert selected category to API filter parameter
-        const filterParam = selectedCategory
-          ? selectedCategory.toLowerCase()
-          : "all-time";
+   const fetchContributors = async () => {
+     setLoading(true);
+     try {
+       // Convert selected category to API filter parameter
+       const filterParam = selectedCategory
+         ? selectedCategory.toLowerCase()
+         : "all-time";
 
-        const response = await axios.get(
-          `http://localhost:5000/api/leaderboard/top-contributors?filter=${filterParam}`
-        );
-        setContributions(response.data);
-        console.log(response.data);
-      } catch (error) {
-        console.error("Error fetching contributors:", error);
-      }
-    };
+       const response = await axios.get(
+         `http://localhost:5000/api/leaderboard/top-contributors?filter=${filterParam}`
+       );
+       setContributions(response.data);
+       console.log(response.data);
+     } catch (error) {
+       console.error("Error fetching contributors:", error);
+     } finally {
+       setLoading(false);
+     }
+   };
 
     fetchContributors();
   }, [selectedCategory]);
   const filteredContributions = contributions.filter((contributor) =>
     contributor.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
- const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useSelector((state) => state.user.currentUser);
 
   return (
     <div>
@@ -146,7 +150,10 @@ const Leaderboard = () => {
         </div>
 
         <div className="pt-[15px] sm:pt-8">
-          <LeaderboardTable contributions={filteredContributions} />
+          <LeaderboardTable
+            contributions={filteredContributions}
+            loading={loading}
+          />
         </div>
       </div>
     </div>

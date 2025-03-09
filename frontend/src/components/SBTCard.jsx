@@ -24,7 +24,7 @@ const SBTCard = () => {
               ? currentUser.user.sbtId
               : "[Unique NFT Identifier]"}
           </p>
-          <p>[Polygon / Ethereum / Custom]</p>
+          <p>[Base]</p>
         </div>
       </div>
     </div>

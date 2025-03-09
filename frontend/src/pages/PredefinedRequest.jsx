@@ -149,9 +149,11 @@ const handlePostRequests = async () => {
             />
             Post Selected Requests
           </button>
-          <button className="w-[116.45px]  h-[24.88px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[12px]  lg:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px]">
-            <Link to="/ask-for-help"> Post a Custom Request →</Link>
-          </button>
+          <Link to="/ask-for-help">
+            <button className="w-[116.45px]  h-[24.88px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[12px]  lg:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px]">
+              Post a Custom Request →
+            </button>
+          </Link>
         </div>
       </div>
     </div>

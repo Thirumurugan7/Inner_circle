@@ -23,6 +23,8 @@ import SocialProfile from "./pages/SocialProfile";
 import ProtectedRoute from "./components/routes/ProtectedRoute";
 import PageWrapper from "./components/wrapper/PageWrapper";
 import { useLocation } from "react-router-dom";
+import SbtSuccess from "./pages/SbtSuccess";
+import ProfileDetails from "./pages/ProfileDetails";
 
 function App() {
   const location = useLocation();
@@ -52,175 +54,158 @@ function App() {
 
   return (
     <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route
-              path="/"
-              element={
-                <Home />
-
-              }
-            />
-
-            {/* Sign-in page accessible only if not signed in */}
-            <Route
-              path="/signin"
-              element={
- 
-                  <ProtectedRoute accessType="signin">
-                    <Signin />
-                  </ProtectedRoute>
-                
-              }
-            />
-
-            {/* Accessible only if Refferal is false */}
-            <Route
-              path="/referral"
-              element={
       
-                  <ProtectedRoute accessType="referralOnly">
-                    <Referral />
-                  </ProtectedRoute>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route path="/" element={<Home />} />
 
-              }
-            />
+          {/* Sign-in page accessible only if not signed in */}
+          <Route
+            path="/signin"
+            element={
+              <ProtectedRoute accessType="signin">
+                <Signin />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Accessible only if Refferal is true and not minted */}
-            <Route
-              path="/sbt-mint"
-              element={
-       
-                  <ProtectedRoute accessType="protected">
-                    <MintSBT />
-                  </ProtectedRoute>
+          {/* Accessible only if Refferal is false */}
+          <Route
+            path="/referral"
+            element={
+              <ProtectedRoute accessType="referralOnly">
+                <Referral />
+              </ProtectedRoute>
+            }
+          />
 
-              }
-            />
+          {/* Accessible only if Refferal is true and not minted */}
+          <Route
+            path="/sbt-mint"
+            element={
+              <ProtectedRoute accessType="protected">
+                <MintSBT />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/sbt-minted-Successfully"
+            element={
+              <ProtectedRoute accessType="protected">
+                <SbtSuccess />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Protected routes, accessible only if Refferal and minted are true */}
-            <Route
-              path="/dashboard"
-              element={
-       
-                  <ProtectedRoute accessType="protected">
-                    <MemberDashboard />
-                  </ProtectedRoute>
-       
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-           
-                  <ProtectedRoute accessType="protected">
-                    <Profile />
-                  </ProtectedRoute>
-            
-              }
-            />
-            <Route
-              path="/leaderboard"
-              element={
-    
-                  <ProtectedRoute accessType="protected">
-                    <Leaderboard />
-                  </ProtectedRoute>
-           
-              }
-            />
-            <Route
-              path="/ask-for-help"
-              element={
-             
-                  <ProtectedRoute accessType="protected">
-                    <AskForHelp />
-                  </ProtectedRoute>
-          
-              }
-            />
-            <Route
-              path="/points-allocation"
-              element={
-           
-                  <ProtectedRoute accessType="protected">
-                    <PointsAllocation />
-                  </ProtectedRoute>
-              
-              }
-            />
-            <Route
-              path="/predefined-help-request"
-              element={
-               
-                  <ProtectedRoute accessType="protected">
-                    <PredefinedRequest />
-                  </ProtectedRoute>
-               
-              }
-            />
-            <Route
-              path="/social-profile/:walletAddress"
-              element={
-               
-                  <ProtectedRoute accessType="protected">
-                    <SocialProfile />
-                  </ProtectedRoute>
-              
-              }
-            />
-            <Route
-              path="/update-profile"
-              element={
-                
-                  <ProtectedRoute accessType="protected">
-                    <ProfileUpdate />
-                  </ProtectedRoute>
-                
-              }
-            />
-            <Route
-              path="/member-requests"
-              element={
-                
-                  <ProtectedRoute accessType="protected">
-                    <AllRequest />
-                  </ProtectedRoute>
-             
-              }
-            />
-            <Route
-              path="/request-posted"
-              element={
-                
-                  <ProtectedRoute accessType="protected">
-                    <RequestPosted />
-                  </ProtectedRoute>
-                
-              }
-            />
-            <Route
-              path="/regular-request-posted"
-              element={
-             
-                  <ProtectedRoute accessType="protected">
-                    <RegularRequestPosted />
-                  </ProtectedRoute>
-               
-              }
-            />
+          {/* Protected routes, accessible only if Refferal and minted are true */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute accessType="protected">
+                <MemberDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute accessType="protected">
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute accessType="protected">
+                <Leaderboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ask-for-help"
+            element={
+              <ProtectedRoute accessType="protected">
+                <AskForHelp />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/points-allocation"
+            element={
+              <ProtectedRoute accessType="protected">
+                <PointsAllocation />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/predefined-help-request"
+            element={
+              <ProtectedRoute accessType="protected">
+                <PredefinedRequest />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/social-profile/:walletAddress"
+            element={
+              <ProtectedRoute accessType="protected">
+                <SocialProfile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/update-profile"
+            element={
+              <ProtectedRoute accessType="protected">
+                <ProfileUpdate />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile-details"
+            element={
+              <ProtectedRoute accessType="protected">
+                <ProfileDetails/>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/member-requests"
+            element={
+              <ProtectedRoute accessType="protected">
+                <AllRequest />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/request-posted"
+            element={
+              <ProtectedRoute accessType="protected">
+                <RequestPosted />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/regular-request-posted"
+            element={
+              <ProtectedRoute accessType="protected">
+                <RegularRequestPosted />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Redirect unknown routes to PageNotFound */}
-            <Route
-              path="*"
-              element={
-                <PageWrapper  appName="Inner Circle">
-                  <PageNotFound />
-                </PageWrapper>
-              }
-            />
-          </Route>
-        </Routes>
+          {/* Redirect unknown routes to PageNotFound */}
+          <Route
+            path="*"
+            element={
+              <PageWrapper appName="Inner Circle">
+                <PageNotFound />
+              </PageWrapper>
+            }
+          />
+        </Route>
+      </Routes>
     </AuthProvider>
   );
 }

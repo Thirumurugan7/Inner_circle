@@ -15,16 +15,7 @@ const ProtectedRoute = ({ children, accessType }) => {
       return;
     }
 
-    const {
-      Refferal,
-      minted,
-      email,
-      twitterId,
-      telegram,
-      github,
-      website,
-      role,
-    } = currentUser.user;
+    const { Refferal, minted, email, telegram, role, name } = currentUser.user;
 
     // Automatically navigate to /sbt-mint if referral is true and not minted
     if (Refferal && !minted) {
@@ -33,13 +24,15 @@ const ProtectedRoute = ({ children, accessType }) => {
     }
 
     // Check if any required profile fields are missing
-    const isProfileIncomplete =
-      !email || !twitterId || !telegram || !github || !website || !role;
+    const isProfileIncomplete = !email || !name || !telegram || !role;
 
     // Allow access only to update-profile if Refferal and minted are true but profile is incomplete
     if (Refferal && minted && isProfileIncomplete) {
-      if (window.location.pathname !== "/update-profile") {
-        navigate("/update-profile", { replace: true });
+      if (
+        window.location.pathname !== "/profile-details" &&
+        window.location.pathname !== "/sbt-minted-Successfully"
+      ) {
+        navigate("/profile-details", { replace: true });
       }
       return;
     }

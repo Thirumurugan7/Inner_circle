@@ -54,10 +54,7 @@ const Home = () => {
             <Hero />
           </motion.div>
 
-          <motion.div
-            className="sm:px-[1rem]"
-            
-          >
+          <motion.div className="sm:px-[1rem]">
             <ActivityCarousel />
           </motion.div>
 

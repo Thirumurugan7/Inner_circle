@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import SBTInfoCard from "../components/SBTInfoCard";
 import SBTCard from "../components/SBTCard";
 import { ethers } from "ethers";
+import { parseAbi } from "viem"; 
 import SoulboundABI from "../../../sbt/artifacts/contracts/soulbound.sol/Soulbound.json";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import spin from '../assets/images/spin.svg'
 import { updateUserProfile } from "../components/redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
-
+import { accountAbstractionProvider } from "../components/auth/AuthContext";
 const contractAddress = "0x42a8872d40349b6bE320E3cfDE9400C438891911";
 
 
@@ -18,97 +19,236 @@ const MintSBT = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const navigate = useNavigate();
     const dispatch = useDispatch();
- const mintSBT = async () => {
-   try {
-     if (!currentUser?.user?.Refferal) {
-       navigate("/referral");
-       return;
-     }
-
-     setIsMinting(true); // Start loading state
-
-     const walletAddress = currentUser?.user?.walletAddress;
-     const token = currentUser?.token;
-     const tokenURI =
-       "ipfs://bafkreigp6tzpmxxdjxe66c4n2yvwn3c24kgp6wcks5recrjlldvj3lzfye";
-
-     if (!walletAddress) {
-       console.error("No wallet address found!");
-       return;
-     }
-
-     if (!window.ethereum) {
-       alert("MetaMask is not installed!");
-       return;
-     }
-
-     await window.ethereum.request({ method: "eth_requestAccounts" });
-     const provider = new ethers.BrowserProvider(window.ethereum);
-     const signer = await provider.getSigner();
-
-     const contract = new ethers.Contract(
-       contractAddress,
-       SoulboundABI.abi,
-       signer
-     );
-
-     const tx = await contract.safeMint(walletAddress, tokenURI);
-     const receipt = await tx.wait();
-     const nftMintedEvent = receipt.logs
-       .filter(
-         (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
-       )
-       .map((log) => {
-         try {
-           return contract.interface.parseLog({
-             topics: log.topics,
-             data: log.data,
-           });
-         } catch (e) {
-           return null;
-         }
-       })
-       .find((event) => event && event.name === "sbtminted");
-
-     console.log("SBT Minted successfully!", receipt);
-     const tokenId = nftMintedEvent?.args[1]?.toString();
-     const tokenIdNumber = Number(tokenId); // or parseInt(tokenId, 10);
- 
-
-     if (tokenId) {
-       const response = await axios.post(
-         "http://localhost:5000/api/auth/minted",
-         { walletAddress, sbtId: tokenIdNumber }, // Add sbtId to the request payload
-         {
-           headers: {
-             Authorization: `Bearer ${token}`,
-           },
-         }
-       );
-
-       if (response.status === 200) {
-         console.log("Database updated successfully!");
-         dispatch(updateUserProfile(response.data.user));
-         navigate("/predefined-help-request", { replace: true });
-       } else {
-         console.error(
-           `Failed to update the database. Status: ${response.status}`
-         );
+   const mintSBT = async () => {
+     try {
+       if (!currentUser?.user?.Refferal) {
+         navigate("/referral");
+         return;
        }
-     } else {
-       console.error("Token ID not found!");
+
+       setIsMinting(true); // Start loading state
+
+       const walletAddress = currentUser?.user?.walletAddress;
+       const token = currentUser?.token;
+       const tokenURI =
+         "ipfs://bafkreigp6tzpmxxdjxe66c4n2yvwn3c24kgp6wcks5recrjlldvj3lzfye";
+
+       if (!walletAddress) {
+         console.error("No wallet address found!");
+         return;
+       }
+
+       // Check if account abstraction provider is ready
+       if (
+         !accountAbstractionProvider.bundlerClient ||
+         !accountAbstractionProvider.smartAccount
+       ) {
+         console.error("Account abstraction not properly initialized");
+         return;
+       }
+
+       // Get bundler client and smart account from the provider
+       const bundlerClient = accountAbstractionProvider.bundlerClient;
+       const smartAccount = accountAbstractionProvider.smartAccount;
+
+       // Pimlico's ERC-20 Paymaster address
+       const pimlicoPaymasterAddress =
+         "0xFC3e86566895Fb007c6A0d3809eb2827DF94F751";
+       // USDC address on Ethereum Sepolia
+       const usdcAddress = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
+       // 10 USDC in WEI format. Since USDC has 6 decimals, 10 * 10^6
+       const approvalAmount = 10000000n;
+
+       // Create calldata for safeMint function
+       const contract = new ethers.Contract(
+         contractAddress,
+         SoulboundABI.abi,
+         new ethers.VoidSigner(walletAddress)
+       );
+       const mintCalldata = contract.interface.encodeFunctionData("safeMint", [
+         walletAddress,
+         tokenURI,
+       ]);
+
+       const userOpHash = await bundlerClient.sendUserOperation({
+         account: smartAccount,
+         calls: [
+           // Approve USDC on Sepolia chain for Pimlico's ERC 20 Paymaster
+           {
+             to: usdcAddress,
+             abi: parseAbi(["function approve(address,uint)"]),
+             functionName: "approve",
+             args: [pimlicoPaymasterAddress, approvalAmount],
+           },
+           // Call to the safeMint function on the SBT contract
+           {
+             to: contractAddress,
+             data: mintCalldata,
+           },
+         ],
+       });
+
+       // Retrieve user operation receipt
+       const receipt = await bundlerClient.waitForUserOperationReceipt({
+         hash: userOpHash,
+       });
+
+       const transactionHash = receipt.receipt.transactionHash;
+       console.log("Transaction hash:", transactionHash);
+
+       // Get transaction receipt to extract event data
+       const provider = new ethers.JsonRpcProvider(
+         "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866"
+       );
+       const txReceipt = await provider.getTransactionReceipt(transactionHash);
+
+       // Extract the sbtminted event
+       const sbtMintedEvent = txReceipt.logs
+         .filter(
+           (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
+         )
+         .map((log) => {
+           try {
+             return contract.interface.parseLog({
+               topics: log.topics,
+               data: log.data,
+             });
+           } catch (e) {
+             return null;
+           }
+         })
+         .find((event) => event && event.name === "sbtminted");
+
+       console.log("SBT Minted successfully!", txReceipt);
+
+       if (sbtMintedEvent) {
+         const tokenId = sbtMintedEvent.args[1].toString();
+         const tokenIdNumber = Number(tokenId);
+
+         const response = await axios.post(
+           "http://localhost:5000/api/auth/minted",
+           { walletAddress, sbtId: tokenIdNumber },
+           {
+             headers: {
+               Authorization: `Bearer ${token}`,
+             },
+           }
+         );
+
+         if (response.status === 200) {
+           console.log("Database updated successfully!");
+           dispatch(updateUserProfile(response.data.user));
+           navigate("/sbt-minted-Successfully", { replace: true });
+         } else {
+           console.error(
+             `Failed to update the database. Status: ${response.status}`
+           );
+         }
+       } else {
+         console.error("Token ID not found in transaction logs!");
+       }
+     } catch (error) {
+       console.error("Minting failed:", error.message);
+       if (error.response) {
+         console.error("Backend error:", error.response.data);
+       }
+     } finally {
+       setIsMinting(false); // Stop loading state
      }
-   } catch (error) {
-     console.error("Minting failed:", error.message);
-     if (error.response) {
-       console.error("Backend error:", error.response.data);
-     }
-   } finally {
-     setIsMinting(false); // Stop loading state
-   }
- };
+   };
 
 
+
+
+
+    // const mintSBT = async () => {
+    //   try {
+    //     if (!currentUser?.user?.Refferal) {
+    //       navigate("/referral");
+    //       return;
+    //     }
+
+    //     setIsMinting(true); // Start loading state
+
+    //     const walletAddress = currentUser?.user?.walletAddress;
+    //     const token = currentUser?.token;
+    //     const tokenURI =
+    //       "ipfs://bafkreigp6tzpmxxdjxe66c4n2yvwn3c24kgp6wcks5recrjlldvj3lzfye";
+
+    //     if (!walletAddress) {
+    //       console.error("No wallet address found!");
+    //       return;
+    //     }
+
+    //     if (!window.ethereum) {
+    //       alert("MetaMask is not installed!");
+    //       return;
+    //     }
+
+    //     await window.ethereum.request({ method: "eth_requestAccounts" });
+    //     const provider = new ethers.BrowserProvider(window.ethereum);
+    //     const signer = await provider.getSigner();
+
+    //     const contract = new ethers.Contract(
+    //       contractAddress,
+    //       SoulboundABI.abi,
+    //       signer
+    //     );
+
+    //     const tx = await contract.safeMint(walletAddress, tokenURI);
+    //     const receipt = await tx.wait();
+    //     const nftMintedEvent = receipt.logs
+    //       .filter(
+    //         (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
+    //       )
+    //       .map((log) => {
+    //         try {
+    //           return contract.interface.parseLog({
+    //             topics: log.topics,
+    //             data: log.data,
+    //           });
+    //         } catch (e) {
+    //           return null;
+    //         }
+    //       })
+    //       .find((event) => event && event.name === "sbtminted");
+
+    //     console.log("SBT Minted successfully!", receipt);
+    //     const tokenId = nftMintedEvent?.args[1]?.toString();
+    //     const tokenIdNumber = Number(tokenId); // or parseInt(tokenId, 10);
+
+    //     if (tokenId) {
+    //       const response = await axios.post(
+    //         "http://localhost:5000/api/auth/minted",
+    //         { walletAddress, sbtId: tokenIdNumber }, // Add sbtId to the request payload
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${token}`,
+    //           },
+    //         }
+    //       );
+
+    //       if (response.status === 200) {
+    //         console.log("Database updated successfully!");
+    //         dispatch(updateUserProfile(response.data.user));
+    //         navigate("/predefined-help-request", { replace: true });
+    //       } else {
+    //         console.error(
+    //           `Failed to update the database. Status: ${response.status}`
+    //         );
+    //       }
+    //     } else {
+    //       console.error("Token ID not found!");
+    //     }
+    //   } catch (error) {
+    //     console.error("Minting failed:", error.message);
+    //     if (error.response) {
+    //       console.error("Backend error:", error.response.data);
+    //     }
+    //   } finally {
+    //     setIsMinting(false); // Stop loading state
+    //   }
+    // };
 
   return (
     <div className="sm:px-[20px] h-auto min-h-screen overflow-y-auto bg-cover SBTbg">

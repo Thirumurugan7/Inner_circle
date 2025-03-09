@@ -43,7 +43,7 @@ const Header = () => {
   console.log(currentUser);
 
   return (
-    <div className="relative flex w-full justify-between items-center py-[25.19px] lg:py-[40px] px-[23px] sm:px-[60px] lg:px-[80px]">
+    <div className="relative flex w-full justify-between  py-[25.19px] lg:py-[40px] px-[23px] sm:px-[60px] lg:px-[80px]">
       <Logo />
       {currentUser && currentUser?.user && (
         <img src={ellipse} alt="" className="absolute top-0 right-0 -z-30" />
@@ -95,9 +95,6 @@ const Header = () => {
             </div>
             <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
               <button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 300, damping: 15 }}
                 className="flex cursor-pointer items-center w-[114px] h-[40px] gap-[11px] rounded-[10px] bg-primary text-black px-[15px] py-[4px] font-dmSans font-medium text-[17.61px] leading-[31.45px]"
               >
                 <img src={profile} alt="" className="w-[18px] h-[18px]" />

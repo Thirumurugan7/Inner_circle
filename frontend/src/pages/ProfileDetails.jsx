@@ -4,13 +4,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { updateUserProfile } from "../components/redux/user/userSlice";
 import { useLocation } from "react-router-dom";
-const ProfileUpdate = () => {
+
+const ProfileDetails = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add this state for button disabling
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add state for form submission
   const currentUser = useSelector((state) => state.user.currentUser);
   const location = useLocation(); // Import useLocation from react-router-dom
   const [sourceRoute, setSourceRoute] = useState(null);
@@ -90,7 +91,7 @@ const ProfileUpdate = () => {
       return;
     }
 
-    // Set submitting state to true to disable the button
+    // Set submitting state to true to disable button and inputs
     setIsSubmitting(true);
 
     try {
@@ -99,7 +100,7 @@ const ProfileUpdate = () => {
 
       if (!token) {
         setError("No authentication token found. Please log in.");
-        setIsSubmitting(false); // Re-enable the button if token check fails
+        setIsSubmitting(false); // Re-enable button if token check fails
         return;
       }
 
@@ -131,16 +132,12 @@ const ProfileUpdate = () => {
 
         // Optional: Update local state or show success message
         setError(null);
-        if (sourceRoute === "/sbt-mint") {
-          navigate("/predefined-help-request", { replace: true });
-        } else {
-          navigate("/profile", { replace: true });
-        }
+        navigate("/predefined-help-request", { replace: true });
       }
     } catch (error) {
       console.error("Error updating user:", error);
       setError(error.response?.data?.message || "Failed to update profile");
-      setIsSubmitting(false); // Re-enable the button if the request fails
+      setIsSubmitting(false); // Re-enable button if request fails
     }
   };
   const placeholders = {
@@ -229,13 +226,13 @@ const ProfileUpdate = () => {
           className={`font-dmSans ${
             isSubmitting ? " opacity-75" : "cursor-pointer"
           } w-[69.93px] h-[25.56px] sm:rounded-[5.86px] sm:p-[5.86px] sm:text-[10.55px] lg:h-[43px] rounded-[5.78px] border-[0.58px] 
-  px-[5.78px] py-[5.78px] text-[10.4px] leading-[13.54px] lg:w-[121px] text-center font-medium lg:text-[18px] lg:leading-[23.44px] tracking-[0%]  bg-white text-black lg:rounded-[10px] lg:p-[10px]`}
+  px-[5.78px] py-[5.78px] text-[10.4px] leading-[13.54px] lg:w-[121px] text-center font-medium lg:text-[18px] lg:leading-[23.44px] tracking-[0%]  bg-white text-black lg:rounded-[10px]  lg:p-[10px]`}
         >
-          {isSubmitting ? "Updating..." : "Update"}
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </div>
     </div>
   );
 };
 
-export default ProfileUpdate;
+export default ProfileDetails;

@@ -52,7 +52,7 @@ const MobileMenu = ({ toggleMenu, isMenuOpen, setIsMenuOpen }) => {
         // 4. Show Menu if both Referral and Minted are true
         <>
           <button
-            className="sm:hidden flex flex-col justify-center items-center z-50 cursor-pointer absolute  right-2"
+            className="sm:hidden flex flex-col top-2 z-50 cursor-pointer absolute  right-2"
             onClick={toggleMenu}
             aria-label="Toggle menu"
           >

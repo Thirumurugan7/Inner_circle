@@ -109,6 +109,13 @@ body {
     background-repeat: no-repeat;
 }
 
+.sbtsuccessbg{
+    background-image: url('./assets//images/sbtsuccessbg.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center;
+}
+
 .dollarinnerbg {
   width: 100%;
   min-height: 195px;
@@ -135,10 +142,14 @@ html {
   background-size: contain;
 }
 
-@media (max-width: 450px) {
+@media (max-width: 500px) {
   .hero {
     background-image: none;
   }
+    .sbtsuccessbg{
+      background-image: none;
+      
+    }
 }
 @media (max-width: 640px) {
 
