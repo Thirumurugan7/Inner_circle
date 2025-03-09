@@ -3,7 +3,7 @@ import SBTInfoCard from "../components/SBTInfoCard";
 import SBTCard from "../components/SBTCard";
 import { ethers } from "ethers";
 import { parseAbi } from "viem"; 
-import SoulboundABI from "../../../sbt/artifacts/contracts/soulbound.sol/Soulbound.json";
+import SoulboundABI from "../ABI/Soulbound.json";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import spin from '../assets/images/spin.svg'
