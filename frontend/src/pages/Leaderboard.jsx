@@ -37,7 +37,7 @@ const Leaderboard = () => {
          : "all-time";
 
        const response = await axios.get(
-         `http://localhost:5000/api/leaderboard/top-contributors?filter=${filterParam}`
+         `http://localhost:5001/api/leaderboard/top-contributors?filter=${filterParam}`
        );
        setContributions(response.data);
        console.log(response.data);

@@ -4,6 +4,10 @@ const initialState = {
   currentUser: null,
   error: null,
   loading: false,
+  referralInfo: {
+    isValid: false,
+    code: "",
+  },
 };
 
 const userSlice = createSlice({
@@ -35,8 +39,17 @@ const userSlice = createSlice({
       };
       state.currentUser = updatedUser;
 
-      // Sync with localStorage to prevent data reset on reload
-     // localStorage.setItem("authUser", JSON.stringify(updatedUser.user));
+      // Removed localStorage.setItem as requested
+    },
+    // New reducer for handling referral information
+    setReferralInfo: (state, action) => {
+      state.referralInfo = action.payload;
+    },
+    clearReferralInfo: (state) => {
+      state.referralInfo = {
+        isValid: false,
+        code: null,
+      };
     },
   },
 });
@@ -47,6 +60,8 @@ export const {
   signInFailure,
   signOutSuccess,
   updateUserProfile,
+  setReferralInfo,
+  clearReferralInfo,
 } = userSlice.actions;
 
 export default userSlice.reducer;

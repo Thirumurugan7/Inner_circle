@@ -49,7 +49,7 @@ const ProfileUpdate = () => {
     const fetchUserByWallet = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/auth/getUsersByWalletAddress`,
+          `http://localhost:5001/api/auth/getUsersByWalletAddress`,
           {
             params: { walletAddress },
             headers: { "Content-Type": "application/json" },
@@ -104,7 +104,7 @@ const ProfileUpdate = () => {
       }
 
       const response = await axios.put(
-        "http://localhost:5000/api/auth/user/update",
+        "http://localhost:5001/api/auth/user/update",
         {
           name: formData.name,
           role: formData.role,

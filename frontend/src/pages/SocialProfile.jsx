@@ -19,7 +19,7 @@ const SocialProfile = () => {
     const fetchUserByWallet = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/auth/getUsersByWalletAddress`,
+          `http://localhost:5001/api/auth/getUsersByWalletAddress`,
           {
             params: { walletAddress },
             headers: { "Content-Type": "application/json" },
@@ -50,7 +50,7 @@ const SocialProfile = () => {
       console.log(walletAddress);
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/action/pointandAllocation`,
+          `http://localhost:5001/api/action/pointandAllocation`,
           {
             params: { walletAddress },
             headers: {
@@ -80,7 +80,7 @@ const SocialProfile = () => {
       setLoading(true); // Start loading
       try {
         const response = await axios.get(
-          `http://localhost:5000/api/action/gethelpactionByWallet`,
+          `http://localhost:5001/api/action/gethelpactionByWallet`,
           {
             params: { walletAddress },
             headers: {

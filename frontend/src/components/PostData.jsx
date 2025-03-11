@@ -35,7 +35,7 @@ const PostData = () => {
       try {
         // Fetch few help requests
         const response = await axios.get(
-          "http://localhost:5000/api/helprequest/fewhelprequest"
+          "http://localhost:5001/api/helprequest/fewhelprequest"
         );
 
         const formattedData = response.data.helpRequests.map((request) => ({

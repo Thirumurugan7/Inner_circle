@@ -199,9 +199,9 @@ function App() {
           <Route
             path="*"
             element={
-              <PageWrapper appName="Inner Circle">
+            
                 <PageNotFound />
-              </PageWrapper>
+              
             }
           />
         </Route>

@@ -119,7 +119,7 @@ const PointsAllocationCard = () => {
       setIsLoading(true); // Start loading
       try {
         const response = await axios.get(
-          "http://localhost:5000/api/auth/users"
+          "http://localhost:5001/api/auth/users"
         );
         if (response.data.success) {
           setUsers(response.data.users);
@@ -159,7 +159,7 @@ const PointsAllocationCard = () => {
     try {
       // Retrieve JWT token
       const response = await axios.post(
-        "http://localhost:5000/api/action/allocatepoints",
+        "http://localhost:5001/api/action/allocatepoints",
         { helpedForWallet, helpedByWallet, points, feedback, category },
         { headers: { Authorization: `Bearer ${token}` } }
       );

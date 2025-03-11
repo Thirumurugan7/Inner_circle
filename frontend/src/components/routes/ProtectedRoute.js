@@ -27,10 +27,17 @@ const ProtectedRoute = ({ children, accessType }) => {
     const isProfileIncomplete = !email || !name || !telegram || !role;
 
     // Allow access only to update-profile if Refferal and minted are true but profile is incomplete
+    // After successful minting, prioritize the success page
+    if (Refferal && minted && window.location.pathname === "/sbt-mint") {
+      navigate("/sbt-minted-Successfully", { replace: true });
+      return;
+    }
+
+    // Then handle incomplete profile cases
     if (Refferal && minted && isProfileIncomplete) {
       if (
-        window.location.pathname !== "/profile-details" &&
-        window.location.pathname !== "/sbt-minted-Successfully"
+        window.location.pathname !== "/sbt-minted-Successfully" &&
+        window.location.pathname !== "/profile-details"
       ) {
         navigate("/profile-details", { replace: true });
       }

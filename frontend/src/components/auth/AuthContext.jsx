@@ -15,7 +15,18 @@ import {
   AccountAbstractionProvider,
   SafeSmartAccount,
 } from "@web3auth/account-abstraction-provider";
+// import "dotenv/config";
 
+import { toSafeSmartAccount } from "permissionless/accounts";
+import { createPublicClient, getContract, http } from "viem";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
+import { sepolia, baseSepolia } from "viem/chains";
+import { createPimlicoClient } from "permissionless/clients/pimlico";
+import {
+  createBundlerClient,
+  entryPoint07Address,
+} from "viem/account-abstraction";
+import { createSmartAccountClient } from "permissionless";
 // Web3Auth configuration
 const clientId =
   "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ";
@@ -48,6 +59,75 @@ export const accountAbstractionProvider = new AccountAbstractionProvider({
   },
 });
 
+const apiKey = "pim_UACBBfefRXFdpheZCcB6VV";
+if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
+
+// const privateKey =
+//   import.meta.env.PRIVATE_KEY ||
+//   (() => {
+//     const pk = generatePrivateKey();
+//     writeFileSync(".env", `PRIVATE_KEY=${pk}`);
+//     return pk;
+//   })();
+const privateKey =
+  "0x0b4d324b924c0acf5f126576cfe80c735674b70ee1689ef160e80745031ae6e1";
+
+export const publicClient = createPublicClient({
+  chain: sepolia,
+  transport: http(
+    "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866"
+  ),
+});
+
+const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`;
+
+const pimlicoClient = createPimlicoClient({
+  transport: http(pimlicoUrl),
+  entryPoint: {
+    address: entryPoint07Address,
+    version: "0.7",
+  },
+});
+
+// Using async IIFE to allow for top-level await
+(async () => {
+  const account = await toSafeSmartAccount({
+    client: publicClient,
+    owners: [privateKeyToAccount(privateKey)],
+    entryPoint: {
+      address: entryPoint07Address,
+      version: "0.7",
+    }, // global entrypoint
+    version: "1.4.1",
+  });
+
+  console.log(
+    `Smart account address: https://sepolia.basescan.io/address/${account.address}`
+  );
+
+  const smartAccountClient = createSmartAccountClient({
+    account,
+    chain: baseSepolia,
+    bundlerTransport: http(pimlicoUrl),
+    paymaster: pimlicoClient,
+    userOperation: {
+      estimateFeesPerGas: async () => {
+        return (await pimlicoClient.getUserOperationGasPrice()).fast;
+      },
+    },
+  });
+
+  const txHash = await smartAccountClient.sendTransaction({
+    to: "0x3ae7F2767111D8700F82122A373792B99d605749",
+    value: 1n, // BigInt literal in JavaScript
+    data: "0x",
+  });
+
+  console.log(
+    `User operation included: https://sepolia.basescan.io/tx/${txHash}`
+  );
+})().catch(console.error);
+
 const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
 });
@@ -70,9 +150,9 @@ export const AuthProvider = ({ children }) => {
       try {
         const web3authInstance = new Web3Auth({
           clientId,
-          web3AuthNetwork: WEB3AUTH_NETWORK.SAPPHIRE_MAINNET,
+          web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
           privateKeyProvider,
-          accountAbstractionProvider
+          accountAbstractionProvider,
         });
 
         setWeb3auth(web3authInstance);
