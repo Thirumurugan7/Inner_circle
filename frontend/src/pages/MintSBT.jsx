@@ -158,99 +158,61 @@ const MintSBT = () => {
   //   }
   // };
 
-  // const mintSBT = async () => {
-  //   try {
-  //     if (!currentUser?.user?.Refferal) {
-  //       navigate("/referral");
-  //       return;
-  //     }
+  const mintSBT = async () => {
+    try {
+      if (!currentUser?.user?.Refferal) {
+        navigate("/referral");
+        return;
+      }
 
-  //     setIsMinting(true); // Start loading state
+      setIsMinting(true); // Start loading state
 
-  //     const walletAddress = currentUser?.user?.walletAddress;
-  //     const token = currentUser?.token;
-  //     const tokenURI =
-  //       "ipfs://bafkreigp6tzpmxxdjxe66c4n2yvwn3c24kgp6wcks5recrjlldvj3lzfye";
+      const walletAddress = currentUser?.user?.walletAddress;
+      const token = currentUser?.token;
+      
 
-  //     if (!walletAddress) {
-  //       console.error("No wallet address found!");
-  //       return;
-  //     }
+      if (!walletAddress) {
+        console.error("No wallet address found!");
+        return;
+      }
 
-  //     if (!window.ethereum) {
-  //       alert("MetaMask is not installed!");
-  //       return;
-  //     }
+     
 
-  //     await window.ethereum.request({ method: "eth_requestAccounts" });
-  //     const provider = new ethers.BrowserProvider(window.ethereum);
-  //     const signer = await provider.getSigner();
+      if (walletAddress) {
+        const response = await axios.post(
+          "http://localhost:5001/api/action/minting",
+          { to:walletAddress }, 
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-  //     const contract = new ethers.Contract(
-  //       contractAddress,
-  //       SoulboundABI.abi,
-  //       signer
-  //     );
-
-  //     const tx = await contract.safeMint(walletAddress, tokenURI);
-  //     const receipt = await tx.wait();
-  //     const nftMintedEvent = receipt.logs
-  //       .filter(
-  //         (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
-  //       )
-  //       .map((log) => {
-  //         try {
-  //           return contract.interface.parseLog({
-  //             topics: log.topics,
-  //             data: log.data,
-  //           });
-  //         } catch (e) {
-  //           return null;
-  //         }
-  //       })
-  //       .find((event) => event && event.name === "sbtminted");
-
-  //     console.log("SBT Minted successfully!", receipt);
-  //     const tokenId = nftMintedEvent?.args[1]?.toString();
-  //     const tokenIdNumber = Number(tokenId); // or parseInt(tokenId, 10);
-
-  //     if (tokenId) {
-  //       const response = await axios.post(
-  //         "http://localhost:5001/api/auth/minted",
-  //         { walletAddress, sbtId: tokenIdNumber }, // Add sbtId to the request payload
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (response.status === 200) {
-  //         console.log("Database updated successfully!");
-  //         dispatch(updateUserProfile(response.data.user));
-  //         navigate("/predefined-help-request", { replace: true });
-  //       } else {
-  //         console.error(
-  //           `Failed to update the database. Status: ${response.status}`
-  //         );
-  //       }
-  //     } else {
-  //       console.error("Token ID not found!");
-  //     }
-  //   } catch (error) {
-  //     console.error("Minting failed:", error.message);
-  //     if (error.response) {
-  //       console.error("Backend error:", error.response.data);
-  //     }
-  //   } finally {
-  //     setIsMinting(false); // Stop loading state
-  //   }
-  // };
+        if (response.status === 200) {
+          console.log("Database updated successfully!");
+          dispatch(updateUserProfile(response.data.user));
+          navigate("/predefined-help-request", { replace: true });
+        } else {
+          console.error(
+            `Failed to update the database. Status: ${response.status}`
+          );
+        }
+      } else {
+        console.error("Token ID not found!");
+      }
+    } catch (error) {
+      console.error("Minting failed:", error.message);
+      if (error.response) {
+        console.error("Backend error:", error.response.data);
+      }
+    } finally {
+      setIsMinting(false); // Stop loading state
+    }
+  };
 
 
-  const mintSBT = ( )=>{
-
-  }
+  
 
   return (
     <div className="sm:px-[20px] h-auto min-h-screen overflow-y-auto bg-cover SBTbg">

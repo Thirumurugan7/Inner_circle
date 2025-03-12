@@ -18,9 +18,17 @@ type ApprovalForAll @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type Transfer @entity(immutable: true) {
+type OwnershipTransferred @entity(immutable: true) {
   id: Bytes!
-  from: Bytes! # address
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SbtMinted @entity(immutable: true) {
+  id: Bytes!
   to: Bytes! # address
   tokenId: BigInt! # uint256
   blockNumber: BigInt!
@@ -28,8 +36,25 @@ type Transfer @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type sbtminted @entity(immutable: true) {
+type TokenReinstated @entity(immutable: true) {
   id: Bytes!
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type TokenRevoked @entity(immutable: true) {
+  id: Bytes!
+  tokenId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type Transfer @entity(immutable: true) {
+  id: Bytes!
+  from: Bytes! # address
   to: Bytes! # address
   tokenId: BigInt! # uint256
   blockNumber: BigInt!

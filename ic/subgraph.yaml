@@ -8,9 +8,9 @@ dataSources:
     name: Soulbound
     network: base-sepolia
     source:
-      address: "0x42a8872d40349b6bE320E3cfDE9400C438891911"
+      address: "0x0131e1a498b266444f0e87Cf2820159d8Fd27eD6"
       abi: Soulbound
-      startBlock: 22714652
+      startBlock: 22998767
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.9
@@ -18,8 +18,11 @@ dataSources:
       entities:
         - Approval
         - ApprovalForAll
+        - OwnershipTransferred
+        - SbtMinted
+        - TokenReinstated
+        - TokenRevoked
         - Transfer
-        - sbtminted
       abis:
         - name: Soulbound
           file: ./abis/Soulbound.json
@@ -28,8 +31,14 @@ dataSources:
           handler: handleApproval
         - event: ApprovalForAll(indexed address,indexed address,bool)
           handler: handleApprovalForAll
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: SbtMinted(address,uint256)
+          handler: handleSbtMinted
+        - event: TokenReinstated(uint256)
+          handler: handleTokenReinstated
+        - event: TokenRevoked(uint256)
+          handler: handleTokenRevoked
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransfer
-        - event: sbtminted(address,uint256)
-          handler: handlesbtminted
       file: ./src/soulbound.ts

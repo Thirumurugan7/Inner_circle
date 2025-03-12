@@ -3,8 +3,11 @@ import { ethereum, Address, BigInt } from "@graphprotocol/graph-ts"
 import {
   Approval,
   ApprovalForAll,
-  Transfer,
-  sbtminted
+  OwnershipTransferred,
+  SbtMinted,
+  TokenReinstated,
+  TokenRevoked,
+  Transfer
 } from "../generated/Soulbound/Soulbound"
 
 export function createApprovalEvent(
@@ -54,6 +57,76 @@ export function createApprovalForAllEvent(
   return approvalForAllEvent
 }
 
+export function createOwnershipTransferredEvent(
+  previousOwner: Address,
+  newOwner: Address
+): OwnershipTransferred {
+  let ownershipTransferredEvent =
+    changetype<OwnershipTransferred>(newMockEvent())
+
+  ownershipTransferredEvent.parameters = new Array()
+
+  ownershipTransferredEvent.parameters.push(
+    new ethereum.EventParam(
+      "previousOwner",
+      ethereum.Value.fromAddress(previousOwner)
+    )
+  )
+  ownershipTransferredEvent.parameters.push(
+    new ethereum.EventParam("newOwner", ethereum.Value.fromAddress(newOwner))
+  )
+
+  return ownershipTransferredEvent
+}
+
+export function createSbtMintedEvent(to: Address, tokenId: BigInt): SbtMinted {
+  let sbtMintedEvent = changetype<SbtMinted>(newMockEvent())
+
+  sbtMintedEvent.parameters = new Array()
+
+  sbtMintedEvent.parameters.push(
+    new ethereum.EventParam("to", ethereum.Value.fromAddress(to))
+  )
+  sbtMintedEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return sbtMintedEvent
+}
+
+export function createTokenReinstatedEvent(tokenId: BigInt): TokenReinstated {
+  let tokenReinstatedEvent = changetype<TokenReinstated>(newMockEvent())
+
+  tokenReinstatedEvent.parameters = new Array()
+
+  tokenReinstatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return tokenReinstatedEvent
+}
+
+export function createTokenRevokedEvent(tokenId: BigInt): TokenRevoked {
+  let tokenRevokedEvent = changetype<TokenRevoked>(newMockEvent())
+
+  tokenRevokedEvent.parameters = new Array()
+
+  tokenRevokedEvent.parameters.push(
+    new ethereum.EventParam(
+      "tokenId",
+      ethereum.Value.fromUnsignedBigInt(tokenId)
+    )
+  )
+
+  return tokenRevokedEvent
+}
+
 export function createTransferEvent(
   from: Address,
   to: Address,
@@ -77,22 +150,4 @@ export function createTransferEvent(
   )
 
   return transferEvent
-}
-
-export function createsbtmintedEvent(to: Address, tokenId: BigInt): sbtminted {
-  let sbtmintedEvent = changetype<sbtminted>(newMockEvent())
-
-  sbtmintedEvent.parameters = new Array()
-
-  sbtmintedEvent.parameters.push(
-    new ethereum.EventParam("to", ethereum.Value.fromAddress(to))
-  )
-  sbtmintedEvent.parameters.push(
-    new ethereum.EventParam(
-      "tokenId",
-      ethereum.Value.fromUnsignedBigInt(tokenId)
-    )
-  )
-
-  return sbtmintedEvent
 }

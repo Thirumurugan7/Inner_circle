@@ -7,5 +7,5 @@ router.post("/allocatepoints", allocatePoints);
 router.get('/gethelpactions', getHelpActions)
 router.get('/gethelpactionByWallet', getHelpActionsByWalletAddress)
 router.get('/pointandAllocation', getUserStats)
-router.post('/test',Aatest)
+router.post('/minting',Aatest)
 export default router;

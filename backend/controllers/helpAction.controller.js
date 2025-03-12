@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import HelpAction from "../models/helpAction.model.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { encodeFunctionData } from "viem";
+import { gql, request } from "graphql-request";
 
 import "dotenv/config";
 import { writeFileSync } from "fs";
@@ -268,6 +269,21 @@ export const getUserStats = async (req, res) => {
 
 export const Aatest = async (req, res) => {
   const { to } = req.body;
+  //const token = req.headers.authorization?.split(" ")[1];
+
+  // if (!token) {
+  //   return res.status(403).json({ message: "No token provided" });
+  // }
+
+  // try {
+  //   jwt.verify(token, process.env.JWT_SECRET);
+  // } catch (error) {
+  //   return res.status(401).json({ message: "Invalid token" });
+  // }
+
+  if (!to) {
+    return res.status(400).json({ message: "Wallet address is required" });
+  }
 
   const abi = [
     {
@@ -296,37 +312,28 @@ export const Aatest = async (req, res) => {
     },
   ];
 
-  const apiKey = "pim_UACBBfefRXFdpheZCcB6VV";
+  const apiKey = process.env.PIMLICO_API_KEY;
   if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 
-  const privateKey =
-    "0xa27419eebd31cd9decd5b790b4ca294f46c1066aecf36c8e29cac784398eb530";
+  const privateKey = process.env.PRIVATE_KEY;
+  const contractAddress = "0x0131e1a498b266444f0e87Cf2820159d8Fd27eD6";
 
   const publicClient = createPublicClient({
     chain: baseSepolia,
-    transport: http(
-      "https://base-sepolia.infura.io/v3/1b78687936a44910bb82d818d810485d"
-    ),
+    transport: http(process.env.INFURA_URL),
   });
 
-  const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_btPPGTjfxa6X6TW6MeogK9`;
-  // const pimlicoUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`;
+  const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=${apiKey}`;
 
   const pimlicoClient = createPimlicoClient({
     transport: http(pimlicoUrl),
-    entryPoint: {
-      address: entryPoint07Address,
-      version: "0.7",
-    },
+    entryPoint: { address: entryPoint07Address, version: "0.7" },
   });
 
   const account = await toSafeSmartAccount({
     client: publicClient,
     owners: [privateKeyToAccount(privateKey)],
-    entryPoint: {
-      address: entryPoint07Address,
-      version: "0.7",
-    }, // global entrypoint
+    entryPoint: { address: entryPoint07Address, version: "0.7" },
     version: "1.4.1",
   });
 
@@ -346,40 +353,87 @@ export const Aatest = async (req, res) => {
     },
   });
 
+  // 🔹 **Send Transaction**
   const txHash = await smartAccountClient.sendTransaction({
-    to: "0x42a8872d40349b6bE320E3cfDE9400C438891911",
+    to: contractAddress,
     value: 0n,
     data: encodeFunctionData({
       abi: abi,
       functionName: "safeMint",
       args: [
-        to, // Address to receive the minted tokens
-        "https://blush-nursing-mandrill-661.mypinata.cloud/ipfs/bafkreiepqd6r6ow6xzneg5xgzu5taytj2zzvx62hwl2hmoz6ctqlqw3qde?pinataGatewayToken=mWGmzTdWTVYzmqOV8fjZkGTG7v-YKBgdzF8XJeeMGfo4_B5DGs4UbpjGfqyOevUS", // Amount to mint (use appropriate bigint value, e.g. 1000000000000000000n for 1 token with 18 decimals)
+        to,
+        "https://blush-nursing-mandrill-661.mypinata.cloud/ipfs/bafkreiepqd6r6ow6xzneg5xgzu5taytj2zzvx62hwl2hmoz6ctqlqw3qde",
       ],
     }),
   });
 
-  console.log(
-    `User operation included: https://sepolia.etherscan.io/tx/${txHash}`
-  );
-  //  const receipt = await txHash.wait();
-  const nftMintedEvent = txHash.logs
-    .filter(
-      (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
-    )
-    .map((log) => {
-      try {
-        return contract.interface.parseLog({
-          topics: log.topics,
-          data: log.data,
-        });
-      } catch (e) {
-        return null;
-      }
-    })
-    .find((event) => event && event.name === "NFTMinted");
-  const tokenId = nftMintedEvent?.args[1]?.toString();
-  console.log(tokenId);
+  console.log(`Transaction sent: https://sepolia.etherscan.io/tx/${txHash}`);
 
-  return 0;
+  // 🔹 **Wait for transaction confirmation**
+  const receipt = await publicClient.waitForTransactionReceipt({
+    hash: txHash,
+  });
+  if (!receipt) {
+    return res.status(500).json({ message: "Transaction not confirmed" });
+  }
+
+  // 🔹 **Fetch Token ID after delay to ensure subgraph indexing**
+  let sbtId = null;
+  for (let i = 0; i < 5; i++) {
+    sbtId = await fetchTokenIdForAddress(to);
+    if (sbtId) break;
+    await new Promise((resolve) => setTimeout(resolve, 3000)); // Wait 3 sec
+  }
+
+  if (!sbtId) {
+    return res.status(404).json({ message: "SBT ID not found after minting" });
+  }
+
+  // 🔹 **Update user in DB**
+  const user = await User.findOneAndUpdate(
+    { walletAddress: to },
+    { minted: true, sbtId },
+    { new: true }
+  );
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  return res.status(200).json({
+    success: true,
+    message: "Minted status updated",
+    user,
+  });
 };
+
+const fetchTokenIdForAddress = async (toAddress) => {
+  try {
+    const data = await fetchSubgraphData();
+
+    const mintedToken = data.sbtminteds.find(
+      (item) => item.to.toLowerCase() === toAddress.toLowerCase()
+    );
+
+    return mintedToken ? mintedToken.tokenId : null;
+  } catch (error) {
+    console.error("Error fetching token ID:", error);
+  }
+};
+
+const query = gql`
+  {
+    sbtminteds {
+      id
+      to
+      tokenId
+    }
+  }
+`;
+const url = "https://api.studio.thegraph.com/query/106616/ic/version/latest";
+
+async function fetchSubgraphData() {
+  return await request(url, query);
+}
+
+      
