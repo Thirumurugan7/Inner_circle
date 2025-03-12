@@ -28,6 +28,7 @@ const UserSchema = new Schema({
     unique: true,
   },
   sbtId: { type: Number,  default: 0 },
+  sbtRevoked: { type: Boolean, default: false },
   totalPoints: { type: Number, default: 0 },
   monthlyPoints: { type: Number, default: 40 },
   pointsAllocated: { type: Number, default: 0 },

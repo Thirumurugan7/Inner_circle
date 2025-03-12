@@ -4,7 +4,7 @@ import HelpAction from "../models/helpAction.model.js";
 import Leaderboard from "../models/leaderboard.model.js";
 import { encodeFunctionData } from "viem";
 import { gql, request } from "graphql-request";
-
+import { reinstateUserSBT } from "../services/sbt.service.js";
 import "dotenv/config";
 import { writeFileSync } from "fs";
 import { toSafeSmartAccount } from "permissionless/accounts";
@@ -316,7 +316,7 @@ export const Aatest = async (req, res) => {
   if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 
   const privateKey = process.env.PRIVATE_KEY;
-  const contractAddress = "0x0131e1a498b266444f0e87Cf2820159d8Fd27eD6";
+  const contractAddress = "0x6604938BE60a32EA9B4F0f12c25a89B14E9d1827";
 
   const publicClient = createPublicClient({
     chain: baseSepolia,
@@ -411,19 +411,25 @@ const fetchTokenIdForAddress = async (toAddress) => {
   try {
     const data = await fetchSubgraphData();
 
-    const mintedToken = data.sbtminteds.find(
+    if (!data || !data.sbtMinteds) {
+      throw new Error("Invalid data structure received from subgraph");
+    }
+
+    const mintedToken = data.sbtMinteds.find(
       (item) => item.to.toLowerCase() === toAddress.toLowerCase()
     );
 
     return mintedToken ? mintedToken.tokenId : null;
   } catch (error) {
     console.error("Error fetching token ID:", error);
+    return null;
   }
 };
 
+
 const query = gql`
   {
-    sbtminteds {
+    sbtMinteds {
       id
       to
       tokenId
@@ -436,4 +442,52 @@ async function fetchSubgraphData() {
   return await request(url, query);
 }
 
+
+
+
+export const reclaimSBT = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    // Verify user is authenticated and authorized
+    // This depends on your auth system...
+
+    // Find user
+    const user = await User.findById({walletAddress : userId});
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Check if user has a revoked SBT
+    if (!user.minted || !user.sbtId || !user.sbtRevoked) {
+      return res.status(400).json({
+        success: false,
+        message: "No revoked SBT found for this user",
+      });
+    }
+
+    // Call reinstate function
+    await reinstateUserSBT(user.sbtId);
+
+    // Update user record
+    user.isActive = true;
+    user.sbtRevoked = false;
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "SBT successfully reclaimed",
+      user
+    });
+  } catch (error) {
+    console.error("Error reclaiming SBT:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to reclaim SBT",
+      error: error.message,
+    });
+  }
+};
       

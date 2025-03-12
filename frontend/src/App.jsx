@@ -25,6 +25,7 @@ import PageWrapper from "./components/wrapper/PageWrapper";
 import { useLocation } from "react-router-dom";
 import SbtSuccess from "./pages/SbtSuccess";
 import ProfileDetails from "./pages/ProfileDetails";
+import ReclaimSBT from "./pages/ReclaimSBT";
 
 function App() {
   const location = useLocation();
@@ -54,7 +55,6 @@ function App() {
 
   return (
     <AuthProvider>
-      
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route path="/" element={<Home />} />
@@ -104,6 +104,14 @@ function App() {
               <ProtectedRoute accessType="protected">
                 <MemberDashboard />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/reclaim-sbt"
+            element={
+              
+                <ReclaimSBT />
+              
             }
           />
           <Route
@@ -166,7 +174,7 @@ function App() {
             path="/profile-details"
             element={
               <ProtectedRoute accessType="protected">
-                <ProfileDetails/>
+                <ProfileDetails />
               </ProtectedRoute>
             }
           />
@@ -196,14 +204,7 @@ function App() {
           />
 
           {/* Redirect unknown routes to PageNotFound */}
-          <Route
-            path="*"
-            element={
-            
-                <PageNotFound />
-              
-            }
-          />
+          <Route path="*" element={<PageNotFound />} />
         </Route>
       </Routes>
     </AuthProvider>
