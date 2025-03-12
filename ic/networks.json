@@ -1,0 +1,8 @@
+{
+  "base-sepolia": {
+    "Soulbound": {
+      "address": "0x42a8872d40349b6bE320E3cfDE9400C438891911",
+      "startBlock": 22714652
+    }
+  }
+}

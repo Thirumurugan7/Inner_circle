@@ -269,31 +269,32 @@ export const getUserStats = async (req, res) => {
 export const Aatest = async (req, res) => {
   const { to } = req.body;
 
-  const abi =  [{
-      "inputs": [
+  const abi = [
+    {
+      inputs: [
         {
-          "internalType": "address",
-          "name": "to",
-          "type": "address"
+          internalType: "address",
+          name: "to",
+          type: "address",
         },
         {
-          "internalType": "string",
-          "name": "_tokenURI",
-          "type": "string"
-        }
+          internalType: "string",
+          name: "_tokenURI",
+          type: "string",
+        },
       ],
-      "name": "safeMint",
-      "outputs": [
+      name: "safeMint",
+      outputs: [
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
+          internalType: "uint256",
+          name: "",
+          type: "uint256",
+        },
       ],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },]
-
+      stateMutability: "nonpayable",
+      type: "function",
+    },
+  ];
 
   const apiKey = "pim_UACBBfefRXFdpheZCcB6VV";
   if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
@@ -303,11 +304,13 @@ export const Aatest = async (req, res) => {
 
   const publicClient = createPublicClient({
     chain: baseSepolia,
-    transport: http("https://base-sepolia.infura.io/v3/1b78687936a44910bb82d818d810485d"),
+    transport: http(
+      "https://base-sepolia.infura.io/v3/1b78687936a44910bb82d818d810485d"
+    ),
   });
 
-const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_btPPGTjfxa6X6TW6MeogK9`;
-// const pimlicoUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`;
+  const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_btPPGTjfxa6X6TW6MeogK9`;
+  // const pimlicoUrl = `https://api.pimlico.io/v2/sepolia/rpc?apikey=${apiKey}`;
 
   const pimlicoClient = createPimlicoClient({
     transport: http(pimlicoUrl),
@@ -343,9 +346,6 @@ const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_btPPGTjfxa6X6
     },
   });
 
-
-
-
   const txHash = await smartAccountClient.sendTransaction({
     to: "0x42a8872d40349b6bE320E3cfDE9400C438891911",
     value: 0n,
@@ -358,27 +358,28 @@ const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_btPPGTjfxa6X6
       ],
     }),
   });
-  //  const receipt = await txHash.wait();
-  // const nftMintedEvent = receipt.logs
-  //   .filter(
-  //     (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
-  //   )
-  //   .map((log) => {
-  //     try {
-  //       return contract.interface.parseLog({
-  //         topics: log.topics,
-  //         data: log.data,
-  //       });
-  //     } catch (e) {
-  //       return null;
-  //     }
-  //   })
-  //   .find((event) => event && event.name === "NFTMinted");
-  //    const tokenId = nftMintedEvent?.args[1]?.toString();
-     console.log(txHash)
+
   console.log(
     `User operation included: https://sepolia.etherscan.io/tx/${txHash}`
   );
+  //  const receipt = await txHash.wait();
+  const nftMintedEvent = txHash.logs
+    .filter(
+      (log) => log.address.toLowerCase() === contractAddress.toLowerCase()
+    )
+    .map((log) => {
+      try {
+        return contract.interface.parseLog({
+          topics: log.topics,
+          data: log.data,
+        });
+      } catch (e) {
+        return null;
+      }
+    })
+    .find((event) => event && event.name === "NFTMinted");
+  const tokenId = nftMintedEvent?.args[1]?.toString();
+  console.log(tokenId);
 
   return 0;
 };

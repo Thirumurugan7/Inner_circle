@@ -37,30 +37,30 @@ const chainConfig = {
     "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866",
 };
 
-export const accountAbstractionProvider = new AccountAbstractionProvider({
-  config: {
-    chainConfig,
-    bundlerConfig: {
-      // Get the pimlico API Key from dashboard.pimlico.io
-      url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
-      // This is just an example of how you can configure the paymaster context.
-      // Please refer to the documentation of the paymaster you are using
-      // to understand the required parameters.
-      paymasterContext: {
-        token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-        sponsorshipPolicyId: "sp_my_policy_id",
-      },
-    },
-    smartAccountInit: new SafeSmartAccount(),
-    paymasterConfig: {
-      // Get the pimlico API Key from dashboard.pimlico.io
-      url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
-    },
-  },
-});
+// export const accountAbstractionProvider = new AccountAbstractionProvider({
+//   config: {
+//     chainConfig,
+//     bundlerConfig: {
+//       // Get the pimlico API Key from dashboard.pimlico.io
+//       url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
+//       // This is just an example of how you can configure the paymaster context.
+//       // Please refer to the documentation of the paymaster you are using
+//       // to understand the required parameters.
+//       paymasterContext: {
+//         token: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+//         sponsorshipPolicyId: "sp_my_policy_id",
+//       },
+//     },
+//     smartAccountInit: new SafeSmartAccount(),
+//     paymasterConfig: {
+//       // Get the pimlico API Key from dashboard.pimlico.io
+//       url: `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`,
+//     },
+//   },
+// });
 
-const apiKey = "pim_UACBBfefRXFdpheZCcB6VV";
-if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
+// const apiKey = "pim_UACBBfefRXFdpheZCcB6VV";
+// if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 
 // const privateKey =
 //   import.meta.env.PRIVATE_KEY ||
@@ -69,64 +69,64 @@ if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 //     writeFileSync(".env", `PRIVATE_KEY=${pk}`);
 //     return pk;
 //   })();
-const privateKey =
-  "0x0b4d324b924c0acf5f126576cfe80c735674b70ee1689ef160e80745031ae6e1";
+// const privateKey =
+//   "0x0b4d324b924c0acf5f126576cfe80c735674b70ee1689ef160e80745031ae6e1";
 
-export const publicClient = createPublicClient({
-  chain: sepolia,
-  transport: http(
-    "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866"
-  ),
-});
+// export const publicClient = createPublicClient({
+//   chain: sepolia,
+//   transport: http(
+//     "https://base-sepolia.infura.io/v3/763d9b7735b04bf58b91993dcc143866"
+//   ),
+// });
 
-const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`;
+// const pimlicoUrl = `https://api.pimlico.io/v2/84532/rpc?apikey=pim_UACBBfefRXFdpheZCcB6VV`;
 
-const pimlicoClient = createPimlicoClient({
-  transport: http(pimlicoUrl),
-  entryPoint: {
-    address: entryPoint07Address,
-    version: "0.7",
-  },
-});
+// const pimlicoClient = createPimlicoClient({
+//   transport: http(pimlicoUrl),
+//   entryPoint: {
+//     address: entryPoint07Address,
+//     version: "0.7",
+//   },
+// });
 
-// Using async IIFE to allow for top-level await
-(async () => {
-  const account = await toSafeSmartAccount({
-    client: publicClient,
-    owners: [privateKeyToAccount(privateKey)],
-    entryPoint: {
-      address: entryPoint07Address,
-      version: "0.7",
-    }, // global entrypoint
-    version: "1.4.1",
-  });
+// // Using async IIFE to allow for top-level await
+// (async () => {
+//   const account = await toSafeSmartAccount({
+//     client: publicClient,
+//     owners: [privateKeyToAccount(privateKey)],
+//     entryPoint: {
+//       address: entryPoint07Address,
+//       version: "0.7",
+//     }, // global entrypoint
+//     version: "1.4.1",
+//   });
 
-  console.log(
-    `Smart account address: https://sepolia.basescan.io/address/${account.address}`
-  );
+//   console.log(
+//     `Smart account address: https://sepolia.basescan.io/address/${account.address}`
+//   );
 
-  const smartAccountClient = createSmartAccountClient({
-    account,
-    chain: baseSepolia,
-    bundlerTransport: http(pimlicoUrl),
-    paymaster: pimlicoClient,
-    userOperation: {
-      estimateFeesPerGas: async () => {
-        return (await pimlicoClient.getUserOperationGasPrice()).fast;
-      },
-    },
-  });
+//   const smartAccountClient = createSmartAccountClient({
+//     account,
+//     chain: baseSepolia,
+//     bundlerTransport: http(pimlicoUrl),
+//     paymaster: pimlicoClient,
+//     userOperation: {
+//       estimateFeesPerGas: async () => {
+//         return (await pimlicoClient.getUserOperationGasPrice()).fast;
+//       },
+//     },
+//   });
 
-  const txHash = await smartAccountClient.sendTransaction({
-    to: "0x3ae7F2767111D8700F82122A373792B99d605749",
-    value: 1n, // BigInt literal in JavaScript
-    data: "0x",
-  });
+//   const txHash = await smartAccountClient.sendTransaction({
+//     to: "0x3ae7F2767111D8700F82122A373792B99d605749",
+//     value: 1n, // BigInt literal in JavaScript
+//     data: "0x",
+//   });
 
-  console.log(
-    `User operation included: https://sepolia.basescan.io/tx/${txHash}`
-  );
-})().catch(console.error);
+//   console.log(
+//     `User operation included: https://sepolia.basescan.io/tx/${txHash}`
+//   );
+// })().catch(console.error);
 
 const privateKeyProvider = new EthereumPrivateKeyProvider({
   config: { chainConfig },
@@ -152,7 +152,7 @@ export const AuthProvider = ({ children }) => {
           clientId,
           web3AuthNetwork: WEB3AUTH_NETWORK.TESTNET,
           privateKeyProvider,
-          accountAbstractionProvider,
+         
         });
 
         setWeb3auth(web3authInstance);

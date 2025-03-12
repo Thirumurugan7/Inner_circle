@@ -150,3 +150,11 @@ export const navigationData = [
     ],
   },
 ];
+
+
+  export const Infos = [
+    { id: 0, det: "Access to Inner Circle private hub" },
+    { id: 1, det: "Participation in high-value meetups" },
+    { id: 2, det: "Unlock exclusive rewards and recognition" },
+    { id: 3, det: "Ability to contribute, collaborate, and earn points" },
+  ];
