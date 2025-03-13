@@ -3,7 +3,7 @@ import axios from "axios";
 import chevronleft from "../assets/images/chevronleft.svg";
 import chevrondown from "../assets/images/chevrondown.svg";
 import blackdownchevron from "../assets/images/blackdownchevron.svg";
-import mark from "../assets/images/mark.svg";
+import mark from "../assets/images/Mark.svg";
 import pluscircle from "../assets/images/pluscircle.svg";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
