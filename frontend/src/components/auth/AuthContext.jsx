@@ -283,7 +283,7 @@ export const AuthProvider = ({ children }) => {
                 
                 // Fetch from backend
                 const response = await axios.post(
-                  "http://localhost:5001/api/auth",
+                  "https://inner-circle-nine.vercel.app/api/auth",
                   {
                     name: userInfo.name,
                     email: userInfo.email || "",
@@ -337,7 +337,7 @@ export const AuthProvider = ({ children }) => {
       }
       
       // Send user data to backend
-      const response = await axios.post("http://localhost:5001/api/auth", {
+      const response = await axios.post("https://inner-circle-nine.vercel.app/api/auth", {
         name: userInfo.name,
         email: userInfo.email || "",
         walletAddress,

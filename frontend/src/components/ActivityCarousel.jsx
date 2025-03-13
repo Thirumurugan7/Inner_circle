@@ -23,7 +23,7 @@ const ActivityCarousel = () => {
    const fetchHelpActions = async (limit = 6) => {
      try {
        const response = await axios.get(
-         `http://localhost:5001/api/action/gethelpactions`,
+         `https://inner-circle-nine.vercel.app/api/action/gethelpactions`,
          {
            params: { limit },
          }

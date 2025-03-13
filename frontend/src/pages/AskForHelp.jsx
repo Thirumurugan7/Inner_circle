@@ -73,7 +73,7 @@ const AskForHelp = () => {
       const telegram = currentUser.user.telegram;
 
       const response = await axios.post(
-        "http://localhost:5001/api/helprequest/",
+        "https://inner-circle-nine.vercel.app/api/helprequest/",
         {
           userId,
           telegram,

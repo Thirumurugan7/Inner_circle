@@ -42,7 +42,7 @@ const MintSBT = () => {
 
       if (walletAddress) {
         const response = await axios.post(
-          "http://localhost:5001/api/action/minting",
+          "https://inner-circle-nine.vercel.app/api/action/minting",
           { to:walletAddress }, 
           {
             headers: {

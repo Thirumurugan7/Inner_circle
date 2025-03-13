@@ -16,7 +16,7 @@ const Refferal = () => {
     try {
       console.log(referralCode.trim());
       const response = await axios.post(
-        "http://localhost:5001/api/referral/validate-referral",
+        "https://inner-circle-nine.vercel.app/api/referral/validate-referral",
         { referralCode: referralCode.trim() }
       );
 
@@ -46,7 +46,7 @@ const Refferal = () => {
 const updateReferralCode = async () => {
   try {
     const response = await axios.post(
-      "http://localhost:5001/api/referral/update-referral",
+      "https://inner-circle-nine.vercel.app/api/referral/update-referral",
       {
         walletAddress: currentUser?.user?.walletAddress,
         referralCode: referralCode.trim(),

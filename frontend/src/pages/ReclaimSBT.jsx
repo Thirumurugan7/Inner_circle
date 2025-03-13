@@ -33,7 +33,7 @@ const ReclaimSBT = () => {
       }
       
       const response = await axios.post(
-        "http://localhost:5001/api/action/users/reclaim-sbt",
+        "https://inner-circle-nine.vercel.app/api/action/users/reclaim-sbt",
         { userId: walletAddress },
         {
           headers: {

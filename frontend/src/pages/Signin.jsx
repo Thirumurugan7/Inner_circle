@@ -22,7 +22,7 @@ const Signin = () => {
       if (referralInfo.isValid && user) {
         try {
           const response = await axios.post(
-            "http://localhost:5001/api/referral/update-referral",
+            "https://inner-circle-nine.vercel.app/api/referral/update-referral",
             {
               walletAddress: currentUser?.user?.walletAddress,
               referralCode: referralInfo.code || "",
@@ -55,7 +55,7 @@ const Signin = () => {
     // Check if the referral code was valid
     if (referralInfo.isValid && user?.walletAddress) {
       const response = await axios.post(
-        "http://localhost:5001/api/referral/update-referral",
+        "https://inner-circle-nine.vercel.app/api/referral/update-referral",
         {
           walletAddress: currentUser?.user?.walletAddress,
           referralCode: referralInfo.code || "",

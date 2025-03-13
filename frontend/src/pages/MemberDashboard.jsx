@@ -20,7 +20,7 @@ const MemberDashboard = () => {
   const fetchUserByWallet = async () => {
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/auth/getUsersByWalletAddress`,
+        `https://inner-circle-nine.vercel.app/api/auth/getUsersByWalletAddress`,
         {
           params: { walletAddress },
           headers: { "Content-Type": "application/json" },

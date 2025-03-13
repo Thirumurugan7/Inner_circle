@@ -35,7 +35,7 @@ const PostData = () => {
       try {
         // Fetch few help requests
         const response = await axios.get(
-          "http://localhost:5001/api/helprequest/fewhelprequest"
+          "https://inner-circle-nine.vercel.app/api/helprequest/fewhelprequest"
         );
 
         const formattedData = response.data.helpRequests.map((request) => ({

@@ -49,7 +49,7 @@ const ProfileUpdate = () => {
     const fetchUserByWallet = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/api/auth/getUsersByWalletAddress`,
+          `https://inner-circle-nine.vercel.app/api/auth/getUsersByWalletAddress`,
           {
             params: { walletAddress },
             headers: { "Content-Type": "application/json" },
@@ -104,7 +104,7 @@ const ProfileUpdate = () => {
       }
 
       const response = await axios.put(
-        "http://localhost:5001/api/auth/user/update",
+        "https://inner-circle-nine.vercel.app/api/auth/user/update",
         {
           name: formData.name,
           role: formData.role,

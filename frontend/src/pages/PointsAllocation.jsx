@@ -8,6 +8,7 @@ import chevrondown from "../assets/images/chevrondown.svg";
 import blackdownchevron from "../assets/images/smallvector.svg";
 import { useSelector,useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom"; 
+import { updateUserProfile } from "../components/redux/user/userSlice";
 const PointsAllocationCard = () => {
   const [users, setUsers] = useState([]);
   const [allocationSuccess, setAllocationSuccess] = useState(false);
@@ -45,7 +46,7 @@ const PointsAllocationCard = () => {
     const fetchUserByWallet = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/api/auth/getUsersByWalletAddress`,
+          `https://inner-circle-nine.vercel.app/api/auth/getUsersByWalletAddress`,
           {
             params: { walletAddress },
             headers: { "Content-Type": "application/json" },
@@ -152,7 +153,7 @@ const PointsAllocationCard = () => {
       setIsLoading(true); // Start loading
       try {
         const response = await axios.get(
-          "http://localhost:5001/api/auth/users"
+          "https://inner-circle-nine.vercel.app/api/auth/users"
         );
         if (response.data.success) {
           setUsers(response.data.users);
@@ -203,7 +204,7 @@ const PointsAllocationCard = () => {
    try {
      // Retrieve JWT token
      const response = await axios.post(
-       "http://localhost:5001/api/action/allocatepoints",
+       "https://inner-circle-nine.vercel.app/api/action/allocatepoints",
        { helpedForWallet, helpedByWallet, points, feedback, category },
        { headers: { Authorization: `Bearer ${token}` } }
      );
