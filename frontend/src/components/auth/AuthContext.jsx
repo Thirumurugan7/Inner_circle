@@ -226,7 +226,7 @@ import {
 } from "../redux/user/userSlice";
 
 // Web3Auth configuration
-const clientId = "BPi5PB_UiIZ-cPz1GtV5i1I2iOSOHuimiXBI0e-Oe_u6X3oVAbCiAZOTEBtTXw4tsluTITPqA8zMsfxIKMjiqNQ";
+const clientId = "BCqmu1bRDa-JEq8vKUfHAfoPeW4IFSikPk40Sq6b3kgEWR0yFcypeimcdcs4UXDAKNyftuJubBdcB_E6SV7mOcM";
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
   chainId: "0xaa36a7", 
