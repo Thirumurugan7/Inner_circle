@@ -5,7 +5,7 @@ import { Link, NavLink } from "react-router-dom";
 import { useSelector } from "react-redux";
 import profile from "../assets/images/profile.svg";
 import ellipse from "../assets/images/ellipse.png";
-import MobileMenu from "./headers/mobileMenu";
+import MobileMenu from "./headers/MobileMenu";
 import DesktopMenu from "./headers/DesktopMenu";
 
 const Header = () => {
