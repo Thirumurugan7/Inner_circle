@@ -16,7 +16,7 @@ const Refferal = () => {
     try {
       console.log(referralCode.trim());
       const response = await axios.post(
-        "http://localhost:5000/api/referral/validate-referral",
+        "http://localhost:5001/api/referral/validate-referral",
         { referralCode: referralCode.trim() }
       );
 

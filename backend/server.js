@@ -7,7 +7,7 @@ import helpRequestRoutes from './routes/helpRequest.route.js'
 import helpActionRoutes from './routes/helpAction.route.js'
 import leaderboardRoutes from './routes/Leaderboard.route.js'
 import referralRoutes from './routes/referral.route.js'
-import './cronJobs.js'
+
 const app = express();
 dotenv.config();
 // Middleware

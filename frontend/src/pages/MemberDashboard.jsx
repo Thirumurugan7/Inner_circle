@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import mark from "../assets/images/Mark.svg";
 import cup from "../assets/images/cup.svg";
 import calendar from "../assets/images/Calendar.svg";
@@ -9,11 +9,11 @@ import PostData from "../components/PostData";
 import HelpedData from "../components/HelpedData";
 import axios from "axios";
 import bell from '../assets/images/bell.svg'
-
+import { updateUserProfile } from "../components/redux/user/userSlice";
 const MemberDashboard = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [userData, setUserData] = useState(null);
-
+  const dispatch = useDispatch();
   useEffect(() => {
   const walletAddress = currentUser?.user?.walletAddress;
 
@@ -31,7 +31,8 @@ const MemberDashboard = () => {
       // Check if users array is not empty
       if (response.data?.users?.length > 0) {
         setUserData(response.data.users[0]); // Set the first user object directly
-        // Don't log userData here - it won't show the updated value
+        console.log(response.data.users[0]);
+         dispatch(updateUserProfile(response.data.users[0]));
       } else {
         console.warn("No user data found.");
       }
@@ -72,7 +73,7 @@ useEffect(() => {
         <div className="flex flex-wrap gap-[8.66px] sm:gap-[18.37px] py-[19px] lg:py-[55px]">
           {/* member card */}
           <div className="w-[250.12px] h-[167.96px] rounded-[8.04px] sm:w-[206.82px] sm:h-[121.86px] sm:rounded-[5.86px] lg:w-[288.7px] lg:h-[193.87px] lg:rounded-[9.28px]  shadow-[0px_0px_70.73px_2.41px_#FFFFFF4F]  memberbg sm:shadow-[0px_0px_81.64px_2.78px_#FFFFFF4F] pt-[20.09px]  sm:pl-[13.47px] lg:pt-[23.19px] pl-[18.49px] sm:pt-[14.65px] lg:pl-[21.34px] gap-[8.04px] sm:gap-[5.86px] lg:gap-[9.28px] flex flex-col">
-            {userData?.isActive ? (
+            {currentUser?.user?.isActive ? (
               <div className="flex items-center gap-[2px] ">
                 <div className="w-[9.15px] h-[9.15px] sm:w-[6.67px] sm:h-[6.67px] lg:w-[10.56px] lg:h-[10.56px] bg-[#16A34A] shadow-[0px_0px_9.28px_4.64px_#16A34A66] rounded-full"></div>
                 <p className="font-medium  text-[14.47px] leading-[18.84px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[16.7px] lg:leading-[21.74px] lg:tracking-[-0.668px] text-center font-dmSans">
@@ -99,9 +100,7 @@ useEffect(() => {
                 <p className="h-[17px] sm:h-[12px] lg:h-[19px]">
                   #IC-{userData?.sbtId}
                 </p>
-                <p className="h-[17px] sm:h-[12px] lg:h-[19px]">
-                  [Base]
-                </p>
+                <p className="h-[17px] sm:h-[12px] lg:h-[19px]">[Base]</p>
               </div>
             </div>
           </div>
@@ -183,9 +182,13 @@ useEffect(() => {
         </div>
         {/* Only show this notification if user has less than 15 points */}
         {userData?.pointsReceived < 15 && (
-          <div className="w-fit h-fit bg-[#FFFFFF14] mb-[40px] flex items-center rounded-[10px] border-[#FFFFFF33] border-[1px] p-[5px_5px_5px_15px] gap-[10px]">
-            <img src={bell} alt="" />
-            <p className="font-medium font-dmSans text-[16px] text-primary leading-[24.41px] tracking-[-0.02em]">
+          <div className="w-fit h-fit bg-[#FFFFFF14] mb-[40px] pt-[5px] flex items-center justify-center rounded-[10px] border-[#FFFFFF33] border-[1px] p-[5px] lg:p-[5px_5px_5px_15px] gap-[5px] lg:gap-[10px]">
+            <img
+              src={bell}
+              alt=""
+              className="h-[14px] w-[14px] md:h-[20px] md:w-[20px] lg:h-fit lg:w-fit"
+            />
+            <p className="font-medium font-dmSans text-[10px] md:text-[14px] lg:text-[16px] text-primary leading-[10px] md:leading-[14px] lg:leading-[24.41px] tracking-[-0.02em]">
               You need{" "}
               <span className="font-bold">
                 {15 - (userData?.pointsReceived || 0)} more points
@@ -193,7 +196,7 @@ useEffect(() => {
               to stay active!
             </p>
             <Link to="/ask-for-help">
-              <button className="w-[144px] h-[42.08px] rounded-[9.35px] gap-[7.26px] p-[9.35px] bg-primary cursor-pointer text-black font-dmSans font-medium text-[14px] leading-[22px]">
+              <button className="w-[98.86px] py-[5px] gap-[4.99px] rounded-[4.99px] border-[0.39px]  px-[6.43px]  text-[10.29px] leading-[15.69px] lg:w-[144px] lg:h-[42.08px] lg:rounded-[9.35px] lg:gap-[7.26px] lg:p-[9.35px] bg-primary cursor-pointer text-black font-dmSans font-medium lg:text-[14px] lg:leading-[22px]">
                 Ask for Help Now
               </button>
             </Link>

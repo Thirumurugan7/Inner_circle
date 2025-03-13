@@ -40,7 +40,12 @@ export const allocatePoints = async (req, res) => {
     if (!helpedUser || !helpedBy) {
       return res.status(404).json({ success: false, message: "Invalid users" });
     }
-
+    if (!helpedUser.isActive) {
+      return res.status(403).json({
+        success: false,
+        message: "You can't allocate points because your account is not active",
+      });
+    }
     if (helpedUser.monthlyPoints < points) {
       return res
         .status(400)
@@ -114,8 +119,7 @@ export const allocatePoints = async (req, res) => {
     console.log("Updated topcontribution:", helpedBy.topcontribution);
 
     // Check if user remains active
-    helpedUser.isActive =
-      helpedUser.pointsAllocated >= 25 && helpedUser.pointsReceived >= 15;
+
 
     // Save both users
     await helpedUser.save();
@@ -267,19 +271,19 @@ export const getUserStats = async (req, res) => {
   }
 };
 
-export const Aatest = async (req, res) => {
+export const sbtmint = async (req, res) => {
   const { to } = req.body;
-  //const token = req.headers.authorization?.split(" ")[1];
+  const token = req.headers.authorization?.split(" ")[1];
 
-  // if (!token) {
-  //   return res.status(403).json({ message: "No token provided" });
-  // }
+  if (!token) {
+    return res.status(403).json({ message: "No token provided" });
+  }
 
-  // try {
-  //   jwt.verify(token, process.env.JWT_SECRET);
-  // } catch (error) {
-  //   return res.status(401).json({ message: "Invalid token" });
-  // }
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+  } catch (error) {
+    return res.status(401).json({ message: "Invalid token" });
+  }
 
   if (!to) {
     return res.status(400).json({ message: "Wallet address is required" });
@@ -448,12 +452,23 @@ async function fetchSubgraphData() {
 export const reclaimSBT = async (req, res) => {
   try {
     const { userId } = req.body;
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(403).json({ message: "No token provided" });
+    }
+
+    try {
+      jwt.verify(token, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(401).json({ message: "Invalid token" });
+    }
 
     // Verify user is authenticated and authorized
     // This depends on your auth system...
 
     // Find user
-    const user = await User.findById({walletAddress : userId});
+    const user = await User.findOne({ walletAddress: userId });
     if (!user) {
       return res
         .status(404)
@@ -468,8 +483,7 @@ export const reclaimSBT = async (req, res) => {
       });
     }
 
-    // Call reinstate function
-    await reinstateUserSBT(user.sbtId);
+    
 
     // Update user record
     user.isActive = true;

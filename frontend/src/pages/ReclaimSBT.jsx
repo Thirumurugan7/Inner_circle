@@ -12,7 +12,7 @@ const ReclaimSBT = () => {
   const [isReclaiming, setIsReclaiming] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
-
+  
   const currentUser = useSelector((state) => state.user.currentUser);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -31,7 +31,7 @@ const ReclaimSBT = () => {
         setError("No wallet address found!");
         return;
       }
-
+      
       const response = await axios.post(
         "http://localhost:5001/api/action/users/reclaim-sbt",
         { userId: walletAddress },
@@ -41,7 +41,7 @@ const ReclaimSBT = () => {
           },
         }
       );
-
+      
       setSuccess(response.data.message);
 
       if (response.status === 200) {
@@ -70,8 +70,8 @@ const ReclaimSBT = () => {
             Welcome to Inner Circle!
           </h1>
           <p className="font-dmSans font-normal text-[14.53px] leading-[18.92px] tracking-[-0.04em] lg:text-[22px] w-[317px] sm:text-[12.89px] sm:leading-[16.78px] sm:tracking-[-0.52px] lg:w-full lg:leading-[28.64px] lg:tracking-[-0.88px] text-center text-sixty pt-[10px]">
-            Your exclusive pass to recognition, rewards, and collaboration in
-            the Inner Circle.
+            Your exclusive pass to recognition, rewards, and collaboration in the
+            Inner Circle.
           </p>
         </div>
 
@@ -98,18 +98,24 @@ const ReclaimSBT = () => {
           </div>
         </div>
 
-        {error && <div className="text-red-500 mb-4 text-center">{error}</div>}
-
+        {error && (
+          <div className="text-red-500 mb-4 text-center">
+            {error}
+          </div>
+        )}
+        
         {success && (
-          <div className="text-green-500 mb-4 text-center">{success}</div>
+          <div className="text-green-500 mb-4 text-center">
+            {success}
+          </div>
         )}
 
         {currentUser?.user?.isActive ? (
           <div
-            className="bg-[#50BA77] flex items-center justify-center text-white text-center w-[263.07px] h-[37.15px] gap-[5.29px] rounded-[6.61px] border-[0.66px] px-[5.29px] py-[10.58px] text-[13.22px] leading-[15.86px] tracking-[-0.04em] 
+            className=" flex items-center justify-center text-white text-center w-[263.07px] h-[37.15px] gap-[5.29px] rounded-[6.61px] border-[0.66px] px-[5.29px] py-[10.58px] text-[13.22px] leading-[15.86px] tracking-[-0.04em] 
               sm:w-[233.18px] sm:h-[32.75px] sm:gap-[4.69px] sm:p-[9.37px] sm:px-[4.69px] sm:rounded-[5.86px] sm:border-[0.59px] 
               sm:text-[11.72px] sm:leading-[14.06px] sm:tracking-[-0.47px] lg:w-[398px] lg:h-[56px] 
-              cursor-pointer lg:rounded-[10px] lg:border-[1px] p-[16px_8px] font-dmSans font-semibold 
+               lg:rounded-[10px] lg:border-[1px] p-[16px_8px] font-dmSans font-semibold 
               lg:text-[20px] lg:leading-[24px] lg:tracking-[-0.04em] mb-10"
           >
             Successfully Reclaimed 🎉

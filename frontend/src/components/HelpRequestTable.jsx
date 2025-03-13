@@ -205,7 +205,7 @@ const HelpRequestTable = () => {
             "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
         }}
       >
-        <div className="w-[14.61px] h-[14.61px] sm:h-[21px] sm:w-[21px] bg-twenty rounded animate-pulse"></div>
+       
       </div>
     </div>
   );
@@ -266,21 +266,7 @@ const HelpRequestTable = () => {
           </div>
 
           {/* Filter Button */}
-          <div className="relative">
-            <div
-              className="w-[34.08px] h-[34.08px] rounded-[2.43px] border-[0.61px] sm:w-[49.59px] sm:h-[49.59px] sm:rounded-[3.54px] sm:border-[0.89px] border-[#FFFFFF12] p-[9.74px] sm:p-[14.17px] flex items-center cursor-pointer"
-              style={{
-                background:
-                  "linear-gradient(0deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0) 99.17%)",
-              }}
-            >
-              <img
-                src={filter}
-                alt=""
-                className="w-[14.61px] h-[14.61px] sm:h-fit sm:w-fit"
-              />
-            </div>
-          </div>
+          
         </div>
       )}
 

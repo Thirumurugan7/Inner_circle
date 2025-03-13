@@ -1,13 +1,61 @@
-import React from "react";
+import React,{useState, useEffect} from "react";
 import loginstar from "../../assets/images/loginstar.svg";
 import { Link} from "react-router-dom";
 import { useSelector } from "react-redux";
+import bell from '../../assets/images/bell.svg';
 
 
 const MobileMenu = ({ toggleMenu, isMenuOpen, setIsMenuOpen }) => {
   const currentUser = useSelector((state) => state.user.currentUser);
+    const [showNotification, setShowNotification] = useState(true);
+
   console.log(currentUser);
+    const toggleNotification = () => {
+    setShowNotification(!showNotification);
+    
+    // If we're closing the notification, set a timer to show it again after 5 seconds
+    if (showNotification) {
+      setTimeout(() => {
+        setShowNotification(true);
+      }, 5000); // 5000 milliseconds = 5 seconds
+    }
+  };
+
+  // Show notification by default when component mounts
+  useEffect(() => {
+    setShowNotification(true);
+  }, []);
   return (
+  <div className="flex gap-[60px]">
+    {/* Bell notification with toggle functionality */}
+          {currentUser?.user?.isActive === false && currentUser?.user?.sbtRevoked === true && (
+            <div className="relative block sm:hidden">
+              <img 
+                src={bell} 
+                alt="" 
+                className="w-[20px] h-[20px] mt-[10px]  cursor-pointer"
+                onClick={toggleNotification}  
+              />
+              {showNotification && (
+                <div className="absolute right-0 w-fit h-fit z-50 flex justify-center">
+                  <div className="w-[300px] lg:w-[448px] h-fit bg-[#232323] justify-between rounded-[5px] lg:rounded-[10px] lg:p-[15px] flex items-center  border-[#FFFFFF33] border-[1px] p-[2px] gap-[5px] lg:gap-[10px]">
+                    <div className="flex justify-between items-start mb-2"></div>
+                    <p className="font-medium font-dmSans text-[10px] md:text-[12px] lg:text-[16px] text-white leading-[10px] md:leading-[14px] lg:leading-[24.41px] tracking-[-0.02em]">
+                      Your account is currently inactive. Reclaim Your SBT now!
+                    </p>
+                    <div className="flex justify-end gap-2">
+                      <button
+                        className="w-[98.86px] py-[5px] gap-[4.99px] rounded-[4.99px] border-[0.39px] px-[6.43px] text-[10.29px] leading-[15.69px] lg:w-[144px] lg:h-fit lg:rounded-[9.35px] lg:gap-[7.26px] bg-primary cursor-pointer text-black font-dmSans font-medium lg:text-[14px] lg:leading-[22px]"
+                        onClick={() => (window.location.href = "/reclaim-sbt")}
+                      >
+                        Reclaim Your SBT
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
     <div className="block relative sm:hidden">
       {!currentUser?.user ? (
         // 1. Show "MEMBER LOGIN" if no user is logged in
@@ -74,6 +122,7 @@ const MobileMenu = ({ toggleMenu, isMenuOpen, setIsMenuOpen }) => {
           </button>
         </>
       )}
+    </div>
     </div>
   );
 };

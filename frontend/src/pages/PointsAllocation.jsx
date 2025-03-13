@@ -6,8 +6,8 @@ import pointsarrow from "../assets/images/pointsarrow.svg";
 import pointsarrowwhite from "../assets/images/pointsarrowwhite.svg";
 import chevrondown from "../assets/images/chevrondown.svg";
 import blackdownchevron from "../assets/images/smallvector.svg";
-import { useSelector } from "react-redux";
-
+import { useSelector,useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom"; 
 const PointsAllocationCard = () => {
   const [users, setUsers] = useState([]);
   const [allocationSuccess, setAllocationSuccess] = useState(false);
@@ -25,7 +25,8 @@ const PointsAllocationCard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAllocating, setIsAllocating] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); // Initialize useNavigate hook
   const Category = [
     "Networking",
     "Public Speaking",
@@ -37,6 +38,38 @@ const PointsAllocationCard = () => {
     "Learning",
     "Others",
   ];
+
+  useEffect(() => {
+    const walletAddress = currentUser?.user?.walletAddress;
+
+    const fetchUserByWallet = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:5001/api/auth/getUsersByWalletAddress`,
+          {
+            params: { walletAddress },
+            headers: { "Content-Type": "application/json" },
+          }
+        );
+        console.log("Fetched Data:", response.data); // Log full response
+
+        // Check if users array is not empty
+        if (response.data?.users?.length > 0) {
+          dispatch(updateUserProfile(response.data.users[0]));
+        } else {
+          console.warn("No user data found.");
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error);
+      }
+    };
+
+    if (walletAddress) {
+      fetchUserByWallet();
+    }
+  }, [currentUser]);
+
+  // Add another useEffect to log when userData changes
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value.toLowerCase());
@@ -137,56 +170,67 @@ const PointsAllocationCard = () => {
     fetchUsers();
   }, []);
 
-  const allocatePoints = async (user) => {
-    if (
-      !selectedPoint ||
-      selectedCategory === "Select category" ||
-      feedback === ""
-    ) {
-      setErrorMessage("Please fill all the fields.");
-      setTimeout(() => setErrorMessage(""), 3000); // Hide error after 3 seconds
-      return;
-    }
+ const allocatePoints = async (user) => {
+   // Check if user has required fields filled
+   if (
+     !selectedPoint ||
+     selectedCategory === "Select category" ||
+     feedback === ""
+   ) {
+     setErrorMessage("Please fill all the fields.");
+     setTimeout(() => setErrorMessage(""), 3000); // Hide error after 3 seconds
+     return;
+   }
 
-    setButtonDisabled(true); // Disable button when allocating starts
-    setIsAllocating(true); // Start the allocation loading state
-    const helpedForWallet = currentUser.user.walletAddress; // Wallet of the person receiving points
-    const helpedByWallet = user.walletAddress; // Wallet of the user allocating points
-    const points = selectedPoint;
-    const category = selectedCategory;
-    const token = currentUser.token;
+   // Check if the current user's SBT is active
+   if (
+     currentUser?.user?.isActive === false &&
+     currentUser?.user?.sbtRevoked === true
+   ) {
+     // Navigate to reclaim-sbt page if SBT is revoked
+     navigate("/reclaim-sbt");
+     return;
+   }
 
-    try {
-      // Retrieve JWT token
-      const response = await axios.post(
-        "http://localhost:5001/api/action/allocatepoints",
-        { helpedForWallet, helpedByWallet, points, feedback, category },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+   setButtonDisabled(true); // Disable button when allocating starts
+   setIsAllocating(true); // Start the allocation loading state
+   const helpedForWallet = currentUser.user.walletAddress; // Wallet of the person receiving points
+   const helpedByWallet = user.walletAddress; // Wallet of the user allocating points
+   const points = selectedPoint;
+   const category = selectedCategory;
+   const token = currentUser.token;
 
-      if (response.data.success) {
-        setAllocationSuccess(true);
-        // Button will remain disabled until the success message disappears
-        // and the form resets via the useEffect above
-      } else {
-        alert("Error: " + response.data.message);
-        setButtonDisabled(false); // Re-enable button on error
-      }
-    } catch (error) {
-      if (error.response && error.response.data) {
-        setErrorMessage(error.response.data.message);
-      } else {
-        setErrorMessage("An unexpected error occurred.");
-        console.error("Error allocating points:", error);
-      }
-      setTimeout(() => setErrorMessage(""), 3000);
-      setButtonDisabled(false); // Re-enable button on error
-    } finally {
-      setIsAllocating(false); // End the allocation loading state
-      // We don't re-enable the button here as we want it to stay disabled
-      // until the success message disappears
-    }
-  };
+   try {
+     // Retrieve JWT token
+     const response = await axios.post(
+       "http://localhost:5001/api/action/allocatepoints",
+       { helpedForWallet, helpedByWallet, points, feedback, category },
+       { headers: { Authorization: `Bearer ${token}` } }
+     );
+
+     if (response.data.success) {
+       setAllocationSuccess(true);
+       // Button will remain disabled until the success message disappears
+       // and the form resets via the useEffect above
+     } else {
+       alert("Error: " + response.data.message);
+       setButtonDisabled(false); // Re-enable button on error
+     }
+   } catch (error) {
+     if (error.response && error.response.data) {
+       setErrorMessage(error.response.data.message);
+     } else {
+       setErrorMessage("An unexpected error occurred.");
+       console.error("Error allocating points:", error);
+     }
+     setTimeout(() => setErrorMessage(""), 3000);
+     setButtonDisabled(false); // Re-enable button on error
+   } finally {
+     setIsAllocating(false); // End the allocation loading state
+     // We don't re-enable the button here as we want it to stay disabled
+     // until the success message disappears
+   }
+ };
 
   // Reorganize users array so the expanded user comes first in mobile view
   const getOrderedUsers = () => {

@@ -6,12 +6,13 @@ import { Link, useNavigate} from "react-router-dom";
 import { useSelector } from "react-redux";
 import axios from "axios"; 
 import { initialRequests } from "../constant";
+
 const PredefinedRequest = () => {
   const [loading, setLoading] = useState(false);
-    const [message, setMessage] = useState(null);
-      const navigate = useNavigate();
+  const [message, setMessage] = useState(null);
+  const navigate = useNavigate();
   
-    const currentUser = useSelector((state) => state.user.currentUser);
+  const currentUser = useSelector((state) => state.user.currentUser);
   
   const [selectedRequests, setSelectedRequests] = useState(
     initialRequests.map((req) => req.id)
@@ -22,6 +23,7 @@ const PredefinedRequest = () => {
       prev.includes(id) ? prev.filter((reqId) => reqId !== id) : [...prev, id]
     );
   };
+
   const handleSubmit = async (req) => {
     if (!req.title || !req.category || !req.urgency) {
       setMessage({ type: "error", text: "Please fill all required fields." });
@@ -55,39 +57,40 @@ const PredefinedRequest = () => {
       console.log("Success:", response.data);
     
     } catch (error) {
-      console.log("Error Data:", error.response.data);
+      console.log("Error Data:", error.response?.data);
       setMessage({ type: "error", text: "Try Again" });
-    } finally {
-      setLoading(false);
+      setLoading(false); // Make sure to reset loading on error
     }
   };
-const handlePostRequests = async () => {
-  if (selectedRequests.length === 0) {
-   if (selectedRequests.length === 0) {
-     setMessage({ type: "error", text: "Please choose at least one request." });
 
-     // Hide the error message after 3 seconds
-     setTimeout(() => {
-       setMessage(null);
-     }, 3000);
+  const handlePostRequests = async () => {
+    if (selectedRequests.length === 0) {
+      setMessage({ type: "error", text: "Please choose at least one request." });
 
-     return;
-   }
-  }
+      // Hide the error message after 3 seconds
+      setTimeout(() => {
+        setMessage(null);
+      }, 3000);
 
-  try {
-    for (const reqId of selectedRequests) {
-      const request = initialRequests.find((req) => req.id === reqId);
-      if (request) {
-        await handleSubmit(request); // Ensure each request is awaited properly
-      }
+      return;
     }
-    // navigate("/request-posted"); // Navigate after all requests are successful
-  } catch (error) {
-    console.error("Error posting requests:", error);
-  }
-};
 
+    // Set loading to true at the beginning to disable the button
+    setLoading(true);
+
+    try {
+      for (const reqId of selectedRequests) {
+        const request = initialRequests.find((req) => req.id === reqId);
+        if (request) {
+          await handleSubmit(request); // Ensure each request is awaited properly
+        }
+      }
+      // Note: The navigation happens in handleSubmit after successful submission
+    } catch (error) {
+      console.error("Error posting requests:", error);
+      setLoading(false); // Reset loading state on error
+    }
+  };
 
   return (
     <div className="px-4 sm:px-12">
@@ -97,7 +100,7 @@ const handlePostRequests = async () => {
             Kickstart Your Journey – Ask for Help!
           </h1>
           <p className="mx-auto font-dmSans  font-normal text-[10.95px] leading-[14.26px] tracking-[-0.04em] sm:text-[17px] sm:leading-[20px] lg:text-[22px] lg:leading-[28.64px] sm:tracking-[-0.88px] text-center text-sixty pt-[4.98px] sm:pt-[10px] max-w-[391.16px] sm:max-w-[500px] md:max-w-[786px]">
-            Start engaging with the community by posting a request. We’ve
+            Start engaging with the community by posting a request. We've
             pre-selected some common help requests for you – feel free to edit,
             unselect, or post your own!
           </p>
@@ -140,17 +143,23 @@ const handlePostRequests = async () => {
         <div className="flex gap-[20px] items-center justify-center ">
           <button
             onClick={handlePostRequests}
-            className="text-black cursor-pointer  bg-primary w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] sm:text-[12px]  lg:text-[16px] sm:leading-[24.41px] tracking-[0] sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px] flex items-center justify-center"
+            disabled={loading}
+            className={`text-black cursor-pointer bg-primary w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] sm:text-[12px] lg:text-[16px] sm:leading-[24.41px] tracking-[0] sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px] flex items-center justify-center ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
           >
             <img
               src={pluscircle}
               alt=""
               className="h-[12.23px] w-[12.23px] sm:h-[15px] sm:w-[15px] lg:h-fit lg:w-fit"
             />
-            Post Selected Requests
+            {loading ? "Posting..." : "Post Selected Requests"}
           </button>
           <Link to="/ask-for-help">
-            <button className="w-[116.45px]  h-[24.88px] gap-[3.86px] rounded-[3.86px]  border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px]  sm:text-[12px]  lg:text-[16px] sm:leading-[24.41px]  cursor-pointer text-primary  sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px]">
+            <button 
+              className="w-[116.45px] h-[24.88px] gap-[3.86px] rounded-[3.86px] border-[0.5px] p-[4.98px] font-dmSans font-medium text-[7.96px] leading-[12.15px] tracking-[0px] sm:text-[12px] lg:text-[16px] sm:leading-[24.41px] cursor-pointer text-primary sm:gap-[7.76px] sm:rounded-[7.76px] sm:border-[1px] border-white sm:w-fit sm:h-fit sm:px-[9px] sm:py-[7px] lg:w-[234px] lg:h-[50px] lg:gap-[7.76px] lg:rounded-[7.76px] lg:p-[10px]"
+              disabled={loading}
+            >
               Post a Custom Request →
             </button>
           </Link>

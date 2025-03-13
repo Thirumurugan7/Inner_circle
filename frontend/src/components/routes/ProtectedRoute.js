@@ -15,8 +15,16 @@ const ProtectedRoute = ({ children, accessType }) => {
       return;
     }
 
-    const { Refferal, minted, email, telegram, role, name } = currentUser.user;
-
+    const { Refferal, minted, email, telegram, role, name, isActive } = currentUser.user;
+ if (window.location.pathname === "/reclaim-sbt") {
+      // If user is active, redirect away from reclaim-sbt
+      if (isActive !== false) {
+        navigate("/", { replace: true });
+        return;
+      }
+      // Continue rendering for inactive users
+      return;
+    }
     // Automatically navigate to /sbt-mint if referral is true and not minted
     if (Refferal && !minted) {
       navigate("/sbt-mint", { replace: true });

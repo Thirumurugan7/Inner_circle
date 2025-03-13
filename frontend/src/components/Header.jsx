@@ -7,6 +7,7 @@ import profile from "../assets/images/profile.svg";
 import ellipse from "../assets/images/ellipse.png";
 import MobileMenu from "./headers/mobileMenu";
 import DesktopMenu from "./headers/DesktopMenu";
+
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -41,6 +42,8 @@ const Header = () => {
   ];
   const currentUser = useSelector((state) => state.user.currentUser);
   console.log(currentUser);
+ // Function to toggle notification visibility
+
 
   return (
     <div className="relative flex w-full justify-between  py-[25.19px] lg:py-[40px] px-[23px] sm:px-[60px] lg:px-[80px]">
@@ -49,6 +52,7 @@ const Header = () => {
         <img src={ellipse} alt="" className="absolute top-0 right-0 -z-30" />
       )}
       {/* Hamburger menu button - only visible on mobile */}
+      
       <MobileMenu
         toggleMenu={toggleMenu}
         isMenuOpen={isMenuOpen}
@@ -93,6 +97,7 @@ const Header = () => {
                 </NavLink>
               ))}
             </div>
+            
             <Link to="/profile" onClick={() => setIsMenuOpen(false)}>
               <button
                 className="flex cursor-pointer items-center w-[114px] h-[40px] gap-[11px] rounded-[10px] bg-primary text-black px-[15px] py-[4px] font-dmSans font-medium text-[17.61px] leading-[31.45px]"
@@ -102,7 +107,7 @@ const Header = () => {
               </button>
             </Link>
           </div>
-          ;
+          
         </div>
       </div>
 

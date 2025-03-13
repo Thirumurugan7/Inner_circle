@@ -47,38 +47,39 @@ const Signin = () => {
 
     handleReferralUpdate();
   }, [user, navigate, referralInfo, currentUser, dispatch]);
-  const handleLogin = async () => {
-    console.log(referralInfo)
-    try {
-      await login();
+ const handleLogin = async () => {
+  console.log(referralInfo)
+  try {
+    await login();
 
-      // Check if the referral code was valid
-      if (referralInfo.isValid && user?.walletAddress) {
-        const response = await axios.post(
-          "http://localhost:5001/api/referral/update-referral",
-          {
-            walletAddress: currentUser?.user?.walletAddress,
-            referralCode: referralInfo.code || "",
-            hasReferral: referralInfo.isValid || false,
-          }
-        );
-        console.log(response.data.user);
+    // Check if the referral code was valid
+    if (referralInfo.isValid && user?.walletAddress) {
+      const response = await axios.post(
+        "http://localhost:5001/api/referral/update-referral",
+        {
+          walletAddress: currentUser?.user?.walletAddress,
+          referralCode: referralInfo.code || "",
+          hasReferral: referralInfo.isValid || false,
+        }
+      );
+      console.log(response.data.user);
 
-        // Dispatch action to update Referral status in Redux
-        dispatch(updateUserProfile(response.data.user));
+      // Dispatch action to update Referral status in Redux
+      dispatch(updateUserProfile(response.data.user));
 
-        // Clear the referral info from Redux
-        dispatch(clearReferralInfo());
+      // Clear the referral info from Redux
+      dispatch(clearReferralInfo());
 
-        // Instead of commenting out, we'll conditionally navigate based on the referral info
-        navigate("/sbt-mint", { replace: true });
-      } else {
-        navigate("/", { replace: true });
-      }
-    } catch (error) {
-      console.error("Login failed:", error);
+      // Navigate to sbt-mint for valid referrals
+      navigate("/sbt-mint", { replace: true });
+    } else {
+      // If referral is not valid or missing, navigate to home
+      navigate("/referral", { replace: true });
     }
-  };
+  } catch (error) {
+    console.error("Login failed:", error);
+  }
+};
 
   return (
     <div className="px-[90px] pt-[47px] pb-28 xl:mx-12 h-screen">

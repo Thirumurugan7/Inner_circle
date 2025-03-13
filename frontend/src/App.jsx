@@ -109,9 +109,9 @@ function App() {
           <Route
             path="/reclaim-sbt"
             element={
-              
+              <ProtectedRoute accessType="protected">
                 <ReclaimSBT />
-              
+              </ProtectedRoute>
             }
           />
           <Route
