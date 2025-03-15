@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children, accessType }) => {
   useEffect(() => {
     if (!currentUser?.user) {
       // Redirect to sign-in for protected routes only
-      if (accessType === "protected") {
+      if (accessType === "protected" || accessType === "referralOnly") {
         navigate("/signin", { replace: true });
       }
       return;
@@ -29,7 +29,23 @@ const ProtectedRoute = ({ children, accessType }) => {
       return;
     }
 
-    // Automatically navigate to /sbt-mint if referral is true and not minted
+    // Allow access to /sbt-mint if referral is true and not minted
+    if (window.location.pathname === "/sbt-mint") {
+      if (Refferal && !minted) {
+        // User should be able to access this page
+        return;
+      } else if (Refferal && minted) {
+        // If already minted, redirect to success page
+        navigate("/sbt-minted-Successfully", { replace: true });
+        return;
+      } else if (!Refferal) {
+        // If no referral, redirect to referral page
+        navigate("/referral", { replace: true });
+        return;
+      }
+    }
+
+    // Redirect to /sbt-mint if referral is true, not minted, and not already on that page
     if (Refferal && !minted && window.location.pathname !== "/sbt-mint") {
       navigate("/sbt-mint", { replace: true });
       return;
@@ -48,12 +64,6 @@ const ProtectedRoute = ({ children, accessType }) => {
       return;
     }
 
-    // After successful minting, prioritize the success page
-    if (Refferal && minted && window.location.pathname === "/sbt-mint") {
-      navigate("/sbt-minted-Successfully", { replace: true });
-      return;
-    }
-
     // Then handle incomplete profile cases
     if (Refferal && minted && isProfileIncomplete) {
       if (
@@ -62,6 +72,26 @@ const ProtectedRoute = ({ children, accessType }) => {
       ) {
         navigate("/profile-details", { replace: true });
       }
+      return;
+    }
+
+    // Handle referral-only routes
+    if (accessType === "referralOnly") {
+      if (Refferal) {
+        // If user already has referral, redirect to appropriate next step
+        if (!minted) {
+          navigate("/sbt-mint", { replace: true });
+        } else {
+          navigate("/dashboard", { replace: true });
+        }
+      }
+      // If no referral, allow access to referral page
+      return;
+    }
+
+    // Signin page is only accessible if not signed in
+    if (accessType === "signin" && currentUser?.user) {
+      navigate("/", { replace: true });
       return;
     }
 
