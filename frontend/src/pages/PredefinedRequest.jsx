@@ -53,7 +53,7 @@ const PredefinedRequest = () => {
       );
 
       setMessage({ type: "success", text: response.data.message });
-      navigate("/request-posted");
+      navigate("/request-posted",{replace:true});
       console.log("Success:", response.data);
     
     } catch (error) {

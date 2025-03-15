@@ -15,8 +15,11 @@ const ProtectedRoute = ({ children, accessType }) => {
       return;
     }
 
-    const { Refferal, minted, email, telegram, role, name, isActive } = currentUser.user;
- if (window.location.pathname === "/reclaim-sbt") {
+    const { Refferal, minted, email, telegram, role, name, isActive } =
+      currentUser.user;
+
+    // Special case for reclaim-sbt page
+    if (window.location.pathname === "/reclaim-sbt") {
       // If user is active, redirect away from reclaim-sbt
       if (isActive !== false) {
         navigate("/", { replace: true });
@@ -25,8 +28,9 @@ const ProtectedRoute = ({ children, accessType }) => {
       // Continue rendering for inactive users
       return;
     }
+
     // Automatically navigate to /sbt-mint if referral is true and not minted
-    if (Refferal && !minted) {
+    if (Refferal && !minted && window.location.pathname !== "/sbt-mint") {
       navigate("/sbt-mint", { replace: true });
       return;
     }
@@ -34,7 +38,16 @@ const ProtectedRoute = ({ children, accessType }) => {
     // Check if any required profile fields are missing
     const isProfileIncomplete = !email || !name || !telegram || !role;
 
-    // Allow access only to update-profile if Refferal and minted are true but profile is incomplete
+    // Allow access to the dashboard page regardless of other conditions
+    if (window.location.pathname === "/dashboard") {
+      return;
+    }
+
+    // Allow access to the request-posted page
+    if (window.location.pathname === "/request-posted") {
+      return;
+    }
+
     // After successful minting, prioritize the success page
     if (Refferal && minted && window.location.pathname === "/sbt-mint") {
       navigate("/sbt-minted-Successfully", { replace: true });
@@ -53,7 +66,11 @@ const ProtectedRoute = ({ children, accessType }) => {
     }
 
     // Restrict access to protected routes if Refferal or minted conditions are not met
-    if (accessType === "protected" && !(Refferal && minted)) {
+    if (
+      accessType === "protected" &&
+      !(Refferal && minted) &&
+      window.location.pathname !== "/request-posted"
+    ) {
       navigate("/", { replace: true });
     }
   }, [accessType, currentUser, navigate]);
