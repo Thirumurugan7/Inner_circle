@@ -91,14 +91,14 @@ useEffect(() => {
 
             <div className="gap-[4.02px] sm:gap-[2.93px] lg:gap-[4.64px] flex flex-col">
               <h1 className="font-dmSans font-bold text-[28.93px] leading-[37.67px] tracking-[-0.04em] sm:text-[21.09px] sm:leading-[27.46px] sm:tracking-[-0.84px] lg:text-[33.4px] lg:leading-[43.48px] lg:tracking-[-1.336px] h-[43px]">
-                {userData?.name}
+                {currentUser?.user?.name}
               </h1>
               <div className="font-dmSans font-normal text-[12.86px] leading-[16.74px] tracking-[-0.04em] sm:text-[9.37px] sm:leading-[12.21px] sm:tracking-[-0.37px] lg:text-[14.84px] lg:leading-[19.33px] lg:tracking-[-0.5936px] lg:gap-[4.64px] flex flex-col">
                 <p className="h-[17px] sm:h-[12px] lg:h-[19px]">
                   Verified Member
                 </p>
                 <p className="h-[17px] sm:h-[12px] lg:h-[19px]">
-                  #IC-{userData?.sbtId}
+                  #IC-{currentUser?.user?.sbtId}
                 </p>
                 <p className="h-[17px] sm:h-[12px] lg:h-[19px]">[Base]</p>
               </div>

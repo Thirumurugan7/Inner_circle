@@ -65,7 +65,7 @@ useEffect(() => {
                   <>
                     {/* Small square indicator */}
                     <div
-                      className={`w-[7.03px] h-[7.03px] lg:w-[12px] lg:h-[12px] border-[1px] transition-all duration-300 text-sixty
+                      className={`w-[7.03px] h-[7.03px] lg:w-[12px] lg:h-[12px] border-[1px] transition-all duration-300 text-sixty mr-[5px]
                                 
                                  border-sixty group-hover:border-primary group-hover:bg-primary
                             `}
@@ -87,11 +87,13 @@ useEffect(() => {
                 alt=""
                 className="h-[25.48px] w-[25.48px] lg:h-[43px] lg:w-[43px]"
               />
-              <button className="text-black bg-white w-[112.56px] h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px] lg:w-[190px] lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
-                <Link to="/signin">
+              <Link to="/signin">
+              <button className="text-black cursor-pointer bg-white w-[112.56px] h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px] lg:w-[190px] lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
+                
                   MEMBER LOGIN
-                </Link>
+                
               </button>
+              </Link>
             </div>
             <p className="text-sixty font-dmSans font-normal  text-[8.3px] leading-[10.8px] lg:text-[14px] lg:leading-[18.23px] tracking-[-0.04em] text-center mt-[8px]">
               Already a member?
@@ -100,14 +102,18 @@ useEffect(() => {
         </div>
       ) : !currentUser?.user?.Refferal ? (
         // Referral is false → Show Enter Referral Code button
-        <button className="text-black bg-white w-fit h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px]  lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
-          <Link to="/referral">Enter Referral Code</Link>
+        <Link to="/referral">
+        <button className="text-black cursor-pointer bg-white w-fit h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px]  lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
+          Enter Referral Code
         </button>
+        </Link>
       ) : currentUser?.user?.Refferal && !currentUser?.user?.minted ? (
         // Minted is false → Show Mint SBT button
-        <button className="text-black bg-white w-[112.56px] h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px] lg:w-[190px] lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
-          <Link to="/sbt-mint">Mint SBT</Link>
+        <Link to="/sbt-mint">
+        <button className="text-black cursor-pointer bg-white w-[112.56px] h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px] lg:w-[190px] lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
+          Mint SBT
         </button>
+        </Link>
       ) : (
         // Both Referral and Minted are true → Show Menu
         <div className="flex gap-[50px]">

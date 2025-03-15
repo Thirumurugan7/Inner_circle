@@ -37,8 +37,8 @@ const Signin = () => {
           // Clear the referral info from Redux
           dispatch(clearReferralInfo());
 
-          // Navigate to /sbt-mint if referral is valid
-          navigate("/sbt-mint", { replace: true });
+          // Handle navigation based on response
+          handleResponseNavigation(response);
         } catch (error) {
           console.error("Failed to update referral code:", error);
         }
@@ -47,39 +47,68 @@ const Signin = () => {
 
     handleReferralUpdate();
   }, [user, navigate, referralInfo, currentUser, dispatch]);
- const handleLogin = async () => {
-  console.log(referralInfo)
-  try {
-    await login();
 
-    // Check if the referral code was valid
-    if (referralInfo.isValid && user?.walletAddress) {
-      const response = await axios.post(
-        "https://inner-circle-nine.vercel.app/api/referral/update-referral",
-        {
-          walletAddress: currentUser?.user?.walletAddress,
-          referralCode: referralInfo.code || "",
-          hasReferral: referralInfo.isValid || false,
-        }
-      );
-      console.log(response.data.user);
+  // Updated function to handle navigation based on API response
+  const handleResponseNavigation = (response) => {
+    // Get HTTP status code from response
+    const statusCode = response.status;
 
-      // Dispatch action to update Referral status in Redux
-      dispatch(updateUserProfile(response.data.user));
+    // Get the user data from the response
+    const userData = response.data.user;
 
-      // Clear the referral info from Redux
-      dispatch(clearReferralInfo());
+    console.log("Navigation logic - Status:", statusCode, "User:", userData);
 
-      // Navigate to sbt-mint for valid referrals
-      navigate("/sbt-mint", { replace: true });
-    } else {
-      // If referral is not valid or missing, navigate to home
-      navigate("/referral", { replace: true });
+    if (statusCode === 200) {
+      if (userData.Referral && !userData.minted) {
+        navigate("/sbt-mint", { replace: true });
+      } else if (userData.Referral && userData.minted) {
+        navigate("/dashboard", { replace: true });
+      }
+    } else if (statusCode === 201) {
+      if (userData.Referral && !userData.minted) {
+        navigate("/sbt-mint", { replace: true });
+      } else if (!userData.Referral) {
+        navigate("/referral", { replace: true });
+      }
     }
-  } catch (error) {
-    console.error("Login failed:", error);
-  }
-};
+  };
+
+  const handleLogin = async () => {
+    console.log("Referral info:", referralInfo);
+    try {
+      await login();
+
+      if (user?.walletAddress) {
+        try {
+          const response = await axios.post(
+            "https://inner-circle-nine.vercel.app/api/referral/update-referral",
+            {
+              walletAddress: currentUser?.user?.walletAddress,
+              referralCode: referralInfo.code || "",
+              hasReferral: referralInfo.isValid || false,
+            }
+          );
+          console.log("Login response:", response);
+
+          // Dispatch action to update Referral status in Redux
+          dispatch(updateUserProfile(response.data.user));
+
+          // Clear the referral info from Redux
+          dispatch(clearReferralInfo());
+
+          // Use the navigation handler with the actual response
+          handleResponseNavigation(response);
+        } catch (error) {
+          console.error("API request failed:", error);
+          // Default fallback navigation
+          navigate("/referral", { replace: true });
+        }
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      navigate('/referral')
+    }
+  };
 
   return (
     <div className="px-[90px] pt-[47px] pb-28 xl:mx-12 h-screen">
@@ -96,9 +125,7 @@ const Signin = () => {
           </p>
         </div>
 
-        {loading ? (
-          <p>Loading...</p>
-        ) : !isLoggedIn ? (
+        {!isLoggedIn ? (
           <button
             onClick={handleLogin}
             className="w-[277.35px] h-[37.24px] gap-[5.56px] rounded-[6.95px] border-[0.7px] 

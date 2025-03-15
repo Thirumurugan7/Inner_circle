@@ -3,17 +3,22 @@ import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import Logo from "../uicomponents/Logo";
-import {updateUserProfile, setReferralInfo} from '../components/redux/user/userSlice'
+import {
+  updateUserProfile,
+  setReferralInfo,
+} from "../components/redux/user/userSlice";
 
 const Refferal = () => {
   const [referralCode, setReferralCode] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.user.currentUser);
 
   const handleReferralSubmit = async () => {
     try {
+      setIsSubmitting(true);
       console.log(referralCode.trim());
       const response = await axios.post(
         "https://inner-circle-nine.vercel.app/api/referral/validate-referral",
@@ -37,45 +42,50 @@ const Refferal = () => {
         }
       } else {
         setErrorMessage("Invalid referral code. Please try again.");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error("Failed to validate referral code:", error);
       setErrorMessage("Server error. Please try again later.");
+      setIsSubmitting(false);
     }
   };
-const updateReferralCode = async () => {
-  try {
-    const response = await axios.post(
-      "https://inner-circle-nine.vercel.app/api/referral/update-referral",
-      {
-        walletAddress: currentUser?.user?.walletAddress,
-        referralCode: referralCode.trim(),
-        hasReferral: true,
-      }
-    );
 
-    if (response.data.success) {
-      console.log("Referral status update:", response.data.message);
-
-      if (response.data?.user) {
-        dispatch(updateUserProfile(response.data.user));
-      } else {
-        console.error("User data not found in response:", response.data);
-      }
-
-      navigate("/sbt-mint", { replace: true });
-    } else {
-      setErrorMessage(
-        response.data.message || "Failed to update referral code."
+  const updateReferralCode = async () => {
+    try {
+      const response = await axios.post(
+        "https://inner-circle-nine.vercel.app/api/referral/update-referral",
+        {
+          walletAddress: currentUser?.user?.walletAddress,
+          referralCode: referralCode.trim(),
+          hasReferral: true,
+        }
       );
+
+      if (response.data.success) {
+        console.log("Referral status update:", response.data.message);
+
+        if (response.data?.user) {
+          dispatch(updateUserProfile(response.data.user));
+        } else {
+          console.error("User data not found in response:", response.data);
+        }
+
+        navigate("/sbt-mint", { replace: true });
+      } else {
+        setErrorMessage(
+          response.data.message || "Failed to update referral code."
+        );
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Failed to update referral code:", error);
+      setErrorMessage(
+        "Server error while updating referral. Please try again later."
+      );
+      setIsSubmitting(false);
     }
-  } catch (error) {
-    console.error("Failed to update referral code:", error);
-    setErrorMessage(
-      "Server error while updating referral. Please try again later."
-    );
-  }
-};
+  };
 
   // Handle input changes and clear error messages if present
   const handleInputChange = (e) => {
@@ -142,9 +152,14 @@ const updateReferralCode = async () => {
             )}
             <button
               onClick={handleReferralSubmit}
-              className="text-black font-dm-sans font-medium text-[11.41px] leading-[17.41px] lg:text-[16px] lg:leading-[24.41px] bg-primary w-[166.88px] h-[35.66px] lg:w-[234px] lg:h-[50px] rounded-[7.76px] p-[7.13px] lg:p-[10px] cursor-pointer"
+              disabled={isSubmitting}
+              className={`text-black font-dm-sans font-medium text-[11.41px] leading-[17.41px] lg:text-[16px] lg:leading-[24.41px] bg-primary w-[166.88px] h-[35.66px] lg:w-[234px] lg:h-[50px] rounded-[7.76px] p-[7.13px] lg:p-[10px] ${
+                isSubmitting
+                  ? "opacity-70 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
             >
-              Continue with Referral
+              {isSubmitting ? "Processing..." : "Continue with Referral"}
             </button>
           </div>
         )}
@@ -154,7 +169,6 @@ const updateReferralCode = async () => {
 };
 
 export default Refferal;
-
 
 // import React, { useState } from "react";
 // import { Link, useNavigate } from "react-router-dom";
@@ -280,7 +294,7 @@ export default Refferal;
 //               value={referralCode}
 //               onChange={handleInputChange}
 //               placeholder="Enter your code here"
-//               className={`w-[326.62px] h-[33.83px] lg:w-[531px] lg:h-[55px] rounded-[7.72px] lg:rounded-[12.55px] border-[0.54px] lg:border-[0.88px] px-[12.35px] py-[9.26px] lg:px-[20.07px] lg:py-[15.05px] 
+//               className={`w-[326.62px] h-[33.83px] lg:w-[531px] lg:h-[55px] rounded-[7.72px] lg:rounded-[12.55px] border-[0.54px] lg:border-[0.88px] px-[12.35px] py-[9.26px] lg:px-[20.07px] lg:py-[15.05px]
 //       border-twenty placeholder:text-fourty text-fourty placeholder:text-[11.07px] lg:placeholder:text-[18px] outline-none text-[12px] lg:text-[18px] ${
 //         errorMessage ? "border-[#DC2626]" : ""
 //       }`}

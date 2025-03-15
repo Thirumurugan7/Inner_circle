@@ -66,11 +66,13 @@ const MobileMenu = ({ toggleMenu, isMenuOpen, setIsMenuOpen }) => {
               alt=""
               className="h-[25.48px] w-[25.48px] lg:h-[43px] lg:w-[43px]"
             />
+            <Link to="/signin" onClick={() => setIsMenuOpen(false)}>
             <button className="text-black bg-white w-[112.56px] h-[25.85px] gap-[5.93px] rounded-[32px] px-[17.78px] py-[5.93px] lg:w-[190px] lg:h-[43px] lg:rounded-[54px] lg:px-[17.58px] lg:py-[10px] text-center font-dmSans font-normal text-[10.67px] leading-[13.89px] lg:text-[18px] lg:leading-[23.44px] tracking-[0%]">
-              <Link to="/signin" onClick={() => setIsMenuOpen(false)}>
+              
                 MEMBER LOGIN
-              </Link>
+              
             </button>
+            </Link>
           </div>
           <p className="text-sixty font-dmSans font-normal text-[8.3px] leading-[10.8px] lg:text-[14px] lg:leading-[18.23px] tracking-[-0.04em] text-center mt-[8px]">
             Already a member?
