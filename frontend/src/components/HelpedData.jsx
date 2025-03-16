@@ -23,7 +23,7 @@ const HelpedData = () => {
   const updateMaxNameLength = () => {
     const screenWidth = window.innerWidth;
     if (screenWidth < 640) {
-      setMaxNameLength(10); // Mobile
+      setMaxNameLength(15); // Mobile
     } else if (screenWidth < 1024) {
       setMaxNameLength(15); // Tablet
     } else {
