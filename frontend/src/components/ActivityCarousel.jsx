@@ -14,56 +14,80 @@ const ActivityCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardWidth, setCardWidth] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(true);
+  const [carouselSpeed, setCarouselSpeed] = useState(CAROUSEL_SPEED);
+  const [translateMultiplier, setTranslateMultiplier] = useState(280); // Increased from 140 to 280
   const cardRef = useRef(null);
 
- 
   const [helpdata, setHelpdata] = useState([]);
-   const extendedData = [...helpdata, ...helpdata];
-   // Fetch help actions data
-   const fetchHelpActions = async (limit = 6) => {
-     try {
-       const response = await axios.get(
-         `https://inner-circle-nine.vercel.app/api/action/gethelpactions`,
-         {
-           params: { limit },
-         }
-       );
+  const extendedData = [...helpdata, ...helpdata];
 
-       // Format postedAt using date-fns
-       
-       console.log(response.data);
-       setHelpdata(response.data.data);
-     } catch (error) {
-       console.error("Error fetching help actions:", error);
-     }
-   };
+  // Fetch help actions data
+  const fetchHelpActions = async (limit = 6) => {
+    try {
+      const response = await axios.get(
+        `https://inner-circle-nine.vercel.app/api/action/gethelpactions`,
+        {
+          params: { limit },
+        }
+      );
 
-   // Fetch data on component mount
-   useEffect(() => {
-     fetchHelpActions();
-   }, []);
-  // Detect card width on mount and window resize
+      console.log(response.data);
+      setHelpdata(response.data.data);
+    } catch (error) {
+      console.error("Error fetching help actions:", error);
+    }
+  };
+
+  // Function to truncate long names
+  const truncateName = (name, maxLength) => {
+    if (!name) return "";
+    if (name.length <= maxLength) return name;
+    return `${name.substring(0, maxLength)}...`;
+  };
+
+  // Fetch data on component mount
   useEffect(() => {
-    const updateCardWidth = () => {
+    fetchHelpActions();
+  }, []);
+
+  // Detect card width and update carousel speed and translate multiplier based on screen size
+  useEffect(() => {
+    const updateCardWidthAndSpeed = () => {
       if (cardRef.current) {
         setCardWidth(cardRef.current.offsetWidth);
+
+        // Set carousel speed and translate multiplier based on screen width
+        const screenWidth = window.innerWidth;
+        if (screenWidth < 640) {
+          // Mobile
+          setCarouselSpeed(2000); // Faster on mobile
+          setTranslateMultiplier(140); // Increased from 140 to 280 for faster movement
+        } else if (screenWidth < 1024) {
+          // Tablet
+          setCarouselSpeed(2500); // Medium speed on tablet
+          setTranslateMultiplier(180); // Increased from 180 to 350 for faster movement
+        } else {
+          // Desktop
+          setCarouselSpeed(3000); // Slower on desktop
+          setTranslateMultiplier(200); // Increased from 200 to 400 for faster movement
+        }
       }
     };
 
-    updateCardWidth();
-    window.addEventListener("resize", updateCardWidth);
+    updateCardWidthAndSpeed();
+    window.addEventListener("resize", updateCardWidthAndSpeed);
 
-    return () => window.removeEventListener("resize", updateCardWidth);
+    return () => window.removeEventListener("resize", updateCardWidthAndSpeed);
   }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
       setIsTransitioning(true);
       setCurrentIndex((prevIndex) => prevIndex + 1);
-    }, CAROUSEL_SPEED);
+    }, carouselSpeed);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [carouselSpeed]);
 
   useEffect(() => {
     if (currentIndex === helpdata.length) {
@@ -72,23 +96,31 @@ const ActivityCarousel = () => {
         setCurrentIndex(0);
       }, 500);
     }
-  }, [currentIndex]);
+  }, [currentIndex, helpdata.length]);
 
-  const translateValue = currentIndex * (cardWidth + 80);
-  // currentIndex * (cardWidth + 40) - cardWidth / 2;
+  // Enhanced translate value with increased multiplier for much faster movement
+  const translateValue = currentIndex * (cardWidth + translateMultiplier);
 
   const Dot = () => (
     <div className="absolute top-1/2 -translate-y-1/2 -right-[16px] md:-right-[20px] lg:-right-[23px] z-10">
-      <div
-        className="w-[4.43px] h-[4.43px] md:w-[5.86px] md:h-[5.86px] lg:w-[10px] lg:h-[10px] rounded-full bg-primary"
-      ></div>
+      <div className="w-[4.43px] h-[4.43px] md:w-[5.86px] md:h-[5.86px] lg:w-[10px] lg:h-[10px] rounded-full bg-primary"></div>
     </div>
   );
+
+  // Set different max lengths for different screen sizes
+  const getMaxNameLength = () => {
+    const screenWidth = window.innerWidth;
+    if (screenWidth < 640) return 15; // Mobile
+    if (screenWidth < 1024) return 20; // Tablet
+    return 23; // Desktop
+  };
+
+  const maxNameLength = getMaxNameLength();
 
   return (
     <div className="relative w-full ml-[2re] mr-[2rem] overflow-hidden sm:mt-[2rem] mb-[4rem] sm:mb-[5rem] lg:mb-[10rem]">
       <div
-        className={`flex  gap-[28.16px] md:gap-[33px] lg:gap-[40px] mt-[23px] transition-transform ${
+        className={`flex gap-[28.16px] md:gap-[33px] lg:gap-[40px] mt-[23px] transition-transform ${
           isTransitioning ? "duration-500 ease-in-out" : "transition-none"
         }`}
         style={{
@@ -103,9 +135,9 @@ const ActivityCarousel = () => {
           >
             <div className="flex flex-col gap-[9px] h-[64.24px] md:h-[84.95px] lg:h-[145px] items-center justify-center relative px-[20px] sm:w-fit md:px-[25px] lg:px-[35px]">
               <h1 className="font-medium text-[13.29px] leading-[17.31px] tracking-[-0.04em] md:text-[17.58px] md:leading-[22.88px] md:tracking-[-0.04em] lg:text-[30px] lg:leading-[39.06px] lg:tracking-[-1.2px] text-center text-primary">
-                {data?.helpedBy?.name}
+                {truncateName(data?.helpedBy?.name, maxNameLength)}
                 <span className="text-thirty px-1"> helped </span>
-                {data?.helpedUser?.name}
+                {truncateName(data?.helpedUser?.name, maxNameLength)}
               </h1>
               <div className="flex gap-[6.65px] sm:gap-[15px] items-center">
                 <p className="text-[#B0B0B0] font-normal text-[9.72px] leading-[12.66px] tracking-[-0.04em] md:text-[12.86px] md:leading-[16.74px] md:tracking-[-0.04em] lg:text-[21.95px] lg:leading-[28.57px] lg:tracking-[-0.88px] text-center">

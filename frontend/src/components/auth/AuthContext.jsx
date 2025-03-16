@@ -617,13 +617,12 @@ import RPC from "./ethersRPC";
 // Web3Auth configuration
 const clientId =
   "BCqmu1bRDa-JEq8vKUfHAfoPeW4IFSikPk40Sq6b3kgEWR0yFcypeimcdcs4UXDAKNyftuJubBdcB_E6SV7mOcM";
-
 const chainConfig = {
   chainNamespace: CHAIN_NAMESPACES.EIP155,
-  chainId: "0xaa36a7",
-  rpcTarget: "https://rpc.ankr.com/eth_sepolia",
-  displayName: "Ethereum Sepolia Testnet",
-  blockExplorerUrl: "https://sepolia.etherscan.io",
+  chainId: "0x14a34",
+  rpcTarget: "https://sepolia.base.org",
+  displayName: "Base Sepolia Testnet",
+  blockExplorerUrl: "https://sepolia.basescan.org",
   ticker: "ETH",
   tickerName: "Ethereum",
   logo: "https://cryptologos.cc/logos/ethereum-eth-logo.png",

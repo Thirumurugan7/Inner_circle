@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import mark from "../assets/images/Mark.svg";
 import cup from "../assets/images/cup.svg";
@@ -14,6 +14,70 @@ const MemberDashboard = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [userData, setUserData] = useState(null);
   const dispatch = useDispatch();
+   const nameRef = useRef(null);
+   const cardRef = useRef(null);
+   const [fontSize, setFontSize] = useState("text-[32.54px]"); // Default font size
+
+   // Function to calculate and set the appropriate font size based on name length
+   const adjustFontSize = () => {
+     if (!nameRef.current || !cardRef.current) return;
+
+     const nameLength = currentUser?.user?.name?.length || 0;
+     const cardWidth = cardRef.current.offsetWidth;
+
+     // Define breakpoints for different screen sizes
+     const isMobile = cardWidth < 210; // sm size
+     const isDesktop = cardWidth > 280; // lg size
+
+     // Adjust font size based on name length and screen size
+     if (isDesktop) {
+       // Desktop sizes
+       if (nameLength > 20) {
+         setFontSize("text-[22px]");
+       } else if (nameLength > 15) {
+         setFontSize("text-[26px]");
+       } else if (nameLength > 10) {
+         setFontSize("text-[30px]");
+       } else {
+         setFontSize("text-[33.4px]"); // Original desktop size
+       }
+     } else if (isMobile) {
+       // Mobile sizes
+       if (nameLength > 20) {
+         setFontSize("text-[14px]");
+       } else if (nameLength > 15) {
+         setFontSize("text-[16px]");
+       } else if (nameLength > 10) {
+         setFontSize("text-[18px]");
+       } else {
+         setFontSize("text-[21.09px]"); // Original mobile size
+       }
+     } else {
+       // Tablet sizes
+       if (nameLength > 20) {
+         setFontSize("text-[18px]");
+       } else if (nameLength > 15) {
+         setFontSize("text-[22px]");
+       } else if (nameLength > 10) {
+         setFontSize("text-[26px]");
+       } else {
+         setFontSize("text-[28.93px]"); // Original tablet size
+       }
+     }
+   };
+
+   // Run the adjustment when the component mounts and when window resizes
+   useEffect(() => {
+     adjustFontSize();
+
+     const handleResize = () => {
+       adjustFontSize();
+     };
+
+     window.addEventListener("resize", handleResize);
+     return () => window.removeEventListener("resize", handleResize);
+   }, [currentUser?.user?.name]);
+   
   useEffect(() => {
   const walletAddress = currentUser?.user?.walletAddress;
 
@@ -72,25 +136,32 @@ useEffect(() => {
 
         <div className="flex flex-wrap gap-[8.66px] sm:gap-[18.37px] py-[19px] lg:py-[55px]">
           {/* member card */}
-          <div className="w-[250.12px] h-[167.96px] rounded-[8.04px] sm:w-[206.82px] sm:h-[121.86px] sm:rounded-[5.86px] lg:w-[288.7px] lg:h-[193.87px] lg:rounded-[9.28px]  shadow-[0px_0px_70.73px_2.41px_#FFFFFF4F]  memberbg sm:shadow-[0px_0px_81.64px_2.78px_#FFFFFF4F] pt-[20.09px]  sm:pl-[13.47px] lg:pt-[23.19px] pl-[18.49px] sm:pt-[14.65px] lg:pl-[21.34px] gap-[8.04px] sm:gap-[5.86px] lg:gap-[9.28px] flex flex-col">
+          <div
+            ref={cardRef}
+            className="w-[250.12px] h-[167.96px] rounded-[8.04px] sm:w-[206.82px] sm:h-[121.86px] sm:rounded-[5.86px] lg:w-[288.7px] lg:h-[193.87px] lg:rounded-[9.28px] shadow-[0px_0px_70.73px_2.41px_#FFFFFF4F] memberbg sm:shadow-[0px_0px_81.64px_2.78px_#FFFFFF4F] pt-[20.09px] sm:pl-[13.47px] lg:pt-[23.19px] pl-[18.49px] sm:pt-[14.65px] lg:pl-[21.34px] gap-[8.04px] sm:gap-[5.86px] lg:gap-[9.28px] flex flex-col"
+          >
+            {/* Active/Inactive section */}
             {currentUser?.user?.isActive ? (
               <div className="flex items-center gap-[2px] ">
                 <div className="w-[9.15px] h-[9.15px] sm:w-[6.67px] sm:h-[6.67px] lg:w-[10.56px] lg:h-[10.56px] bg-[#16A34A] shadow-[0px_0px_9.28px_4.64px_#16A34A66] rounded-full"></div>
-                <p className="font-medium  text-[14.47px] leading-[18.84px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[16.7px] lg:leading-[21.74px] lg:tracking-[-0.668px] text-center font-dmSans">
+                <p className="font-medium text-[14.47px] leading-[18.84px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[16.7px] lg:leading-[21.74px] lg:tracking-[-0.668px] text-center font-dmSans">
                   Active
                 </p>
               </div>
             ) : (
               <div className="flex items-center gap-[7px] ">
                 <div className="w-[9.15px] h-[9.15px] sm:w-[6.67px] sm:h-[6.67px] lg:w-[10.56px] lg:h-[10.56px] bg-[#DC2626] shadow-[0px_0px_9.28px_4.64px_#DC2626] rounded-full"></div>
-                <p className="font-medium  text-[14.47px] leading-[18.84px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[16.7px] lg:leading-[21.74px] lg:tracking-[-0.668px] text-center font-dmSans">
+                <p className="font-medium text-[14.47px] leading-[18.84px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[16.7px] lg:leading-[21.74px] lg:tracking-[-0.668px] text-center font-dmSans">
                   InActive
                 </p>
               </div>
             )}
 
             <div className="gap-[4.02px] sm:gap-[2.93px] lg:gap-[4.64px] flex flex-col">
-              <h1 className="font-dmSans font-bold text-[28.93px] leading-[37.67px] tracking-[-0.04em] sm:text-[21.09px] sm:leading-[27.46px] sm:tracking-[-0.84px] lg:text-[33.4px] lg:leading-[43.48px] lg:tracking-[-1.336px] h-[43px]">
+              <h1
+                ref={nameRef}
+                className={`font-dmSans font-bold ${fontSize} leading-[1.2] tracking-[-0.04em] text-ellipsis w-full pr-[10px]`}
+              >
                 {currentUser?.user?.name}
               </h1>
               <div className="font-dmSans font-normal text-[12.86px] leading-[16.74px] tracking-[-0.04em] sm:text-[9.37px] sm:leading-[12.21px] sm:tracking-[-0.37px] lg:text-[14.84px] lg:leading-[19.33px] lg:tracking-[-0.5936px] lg:gap-[4.64px] flex flex-col">

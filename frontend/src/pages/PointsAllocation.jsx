@@ -171,67 +171,67 @@ const PointsAllocationCard = () => {
     fetchUsers();
   }, []);
 
- const allocatePoints = async (user) => {
-   // Check if user has required fields filled
-   if (
-     !selectedPoint ||
-     selectedCategory === "Select category" ||
-     feedback === ""
-   ) {
-     setErrorMessage("Please fill all the fields.");
-     setTimeout(() => setErrorMessage(""), 3000); // Hide error after 3 seconds
-     return;
-   }
+  const allocatePoints = async (user) => {
+    // Check if user has required fields filled
+    if (
+      !selectedPoint ||
+      selectedCategory === "Select category" ||
+      feedback === ""
+    ) {
+      setErrorMessage("Please fill all the fields.");
+      setTimeout(() => setErrorMessage(""), 3000); // Hide error after 3 seconds
+      return;
+    }
 
-   // Check if the current user's SBT is active
-   if (
-     currentUser?.user?.isActive === false &&
-     currentUser?.user?.sbtRevoked === true
-   ) {
-     // Navigate to reclaim-sbt page if SBT is revoked
-     navigate("/reclaim-sbt");
-     return;
-   }
+    // Check if the current user's SBT is active
+    if (
+      currentUser?.user?.isActive === false &&
+      currentUser?.user?.sbtRevoked === true
+    ) {
+      // Navigate to reclaim-sbt page if SBT is revoked
+      navigate("/reclaim-sbt");
+      return;
+    }
 
-   setButtonDisabled(true); // Disable button when allocating starts
-   setIsAllocating(true); // Start the allocation loading state
-   const helpedForWallet = currentUser.user.walletAddress; // Wallet of the person receiving points
-   const helpedByWallet = user.walletAddress; // Wallet of the user allocating points
-   const points = selectedPoint;
-   const category = selectedCategory;
-   const token = currentUser.token;
+    setButtonDisabled(true); // Disable button when allocating starts
+    setIsAllocating(true); // Start the allocation loading state
+    const helpedForWallet = currentUser.user.walletAddress; // Wallet of the person receiving points
+    const helpedByWallet = user.walletAddress; // Wallet of the user allocating points
+    const points = selectedPoint;
+    const category = selectedCategory;
+    const token = currentUser.token;
 
-   try {
-     // Retrieve JWT token
-     const response = await axios.post(
-       "https://inner-circle-nine.vercel.app/api/action/allocatepoints",
-       { helpedForWallet, helpedByWallet, points, feedback, category },
-       { headers: { Authorization: `Bearer ${token}` } }
-     );
+    try {
+      // Retrieve JWT token
+      const response = await axios.post(
+        "https://inner-circle-nine.vercel.app/api/action/allocatepoints",
+        { helpedForWallet, helpedByWallet, points, feedback, category },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-     if (response.data.success) {
-       setAllocationSuccess(true);
-       // Button will remain disabled until the success message disappears
-       // and the form resets via the useEffect above
-     } else {
-       alert("Error: " + response.data.message);
-       setButtonDisabled(false); // Re-enable button on error
-     }
-   } catch (error) {
-     if (error.response && error.response.data) {
-       setErrorMessage(error.response.data.message);
-     } else {
-       setErrorMessage("An unexpected error occurred.");
-       console.error("Error allocating points:", error);
-     }
-     setTimeout(() => setErrorMessage(""), 3000);
-     setButtonDisabled(false); // Re-enable button on error
-   } finally {
-     setIsAllocating(false); // End the allocation loading state
-     // We don't re-enable the button here as we want it to stay disabled
-     // until the success message disappears
-   }
- };
+      if (response.data.success) {
+        setAllocationSuccess(true);
+        // Button will remain disabled until the success message disappears
+        // and the form resets via the useEffect above
+      } else {
+        alert("Error: " + response.data.message);
+        setButtonDisabled(false); // Re-enable button on error
+      }
+    } catch (error) {
+      if (error.response && error.response.data) {
+        setErrorMessage(error.response.data.message);
+      } else {
+        setErrorMessage("An unexpected error occurred.");
+        console.error("Error allocating points:", error);
+      }
+      setTimeout(() => setErrorMessage(""), 3000);
+      setButtonDisabled(false); // Re-enable button on error
+    } finally {
+      setIsAllocating(false); // End the allocation loading state
+      // We don't re-enable the button here as we want it to stay disabled
+      // until the success message disappears
+    }
+  };
 
   // Reorganize users array so the expanded user comes first in mobile view
   const getOrderedUsers = () => {
@@ -244,40 +244,61 @@ const PointsAllocationCard = () => {
   };
 
   // Get card style for each user
-  const getCardStyle = (index, orderedUsers) => {
-    // For mobile view and expanded card
-    if (isMobile && index === 0 && expandedMember !== null) {
-      return {
-        gridColumn: "1 / -1", // Span all columns
-        height: "auto",
-        width: "100%",
-        order: -1, // Ensure it's at the top
-      };
-    }
+  // Modify your getCardStyle function
+ const getCardStyle = (index, orderedUsers) => {
+   // For mobile view and expanded card
+   if (isMobile && index === 0 && expandedMember !== null) {
+     return {
+       gridColumn: "1 / -1", // Span all columns
+       height: "auto",
+       width: "100%",
+       order: -1, // Ensure it's at the top
+     };
+   }
 
-    // For non-expanded cards in mobile view, make more specific adjustments
-    if (isMobile && (index !== 0 || expandedMember === null)) {
-      return {
-        height: "88px", // Fixed height for non-expanded cards
-        marginBottom: "0px", // Reduce bottom margin
-        width: "175.69px", // Maintain original width
-        alignSelf: "start", // This will help cards stack properly
-        gridRow: "auto", // Let the grid auto-place the items
-        // Remove any flex properties that might be causing the issue
-        display: "block",
-      };
-    }
+   // For non-expanded cards in mobile view
+   if (isMobile && (index !== 0 || expandedMember === null)) {
+     return {
+       height: "88px", // Fixed height for non-expanded cards in mobile
+       marginBottom: "0px", // Reduce bottom margin
+       width: "175.69px", // Maintain original width
+       alignSelf: "start", // This will help cards stack properly
+       gridRow: "auto", // Let the grid auto-place the items
+       display: "block",
+     };
+   }
 
-    // For desktop view and expanded card
-    if (!isMobile && orderedUsers[index] === filteredUsers[expandedMember]) {
-      return {
-        gridRow: "span 2", // Still 2 rows tall for desktop
-        height: "auto",
-      };
-    }
+   // For desktop view and expanded card
+   if (!isMobile && orderedUsers[index] === filteredUsers[expandedMember]) {
+     return {
+       gridRow: "span 2", // Still 2 rows tall for desktop
+       height: "auto",
+     };
+   }
 
-    return {}; // Default style
-  };
+   // For non-expanded cards in desktop view with responsive heights
+   if (!isMobile) {
+     // Using window width to determine the appropriate height
+     if (windowWidth >= 1024) {
+       // xl breakpoint
+       return {
+         height: "140px",
+       };
+     } else if (windowWidth >= 640) {
+       // lg breakpoint
+       return {
+         height: "90px",
+       };
+     } else {
+       // sm breakpoint (but still !isMobile)
+       return {
+         height: "88px",
+       };
+     }
+   }
+
+   return {}; // Default style
+ };
 
   const orderedUsers = getOrderedUsers();
 
@@ -369,14 +390,36 @@ const PointsAllocationCard = () => {
                     >
                       {/* Default Content - Show Only If Not Expanded */}
                       {!isExpanded && (
-                        <div className="flex justify-between gap-[11.73px] sm:gap-[5.27px] lg:gap-[23.44px] w-full">
-                          <div className="flex flex-col gap-[4.92px] sm:gap-[9px]">
-                            <p className="text-white font-medium text-[14.94px] leading-[19.46px] tracking-[-0.04em]   sm:text-[16.4px] sm:leading-[21.36px] sm:tracking-[-0.66px] lg:text-[28px] lg:leading-[36.46px] lg:tracking-[-1.12px] ">
+                        <div className="flex justify-between gap-[2px]  w-full">
+                          <div className="flex flex-col w-[80px] sm:w-[100px] lg:w-[160px] gap-[4.92px] sm:gap-[9px] max-w-[60%] overflow-hidden">
+                            <p
+                              className={`text-white font-medium tracking-[-0.04em] sm:tracking-[-0.66px] lg:tracking-[-1.12px] ${
+                                user?.name?.length > 11
+                                  ? "text-[12px] sm:text-[13px] lg:text-[20px] leading-[16px] sm:leading-[17px] lg:leading-[28px]"
+                                  : "text-[14.94px] sm:text-[16.4px] lg:text-[28px] leading-[19.46px] sm:leading-[21.36px] lg:leading-[36.46px]"
+                              }`}
+                            >
                               {user?.name}
                             </p>
-                            <div className="text-fourty flex flex-col gap-[2.73px] sm:gap-[2.93px] lg:gap-[5px] font-medium text-[9.61px] leading-[12.51px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[18px] lg:leading-[23.44px] lg:tracking-[-0.72px]">
-                              <p>{user?.role}</p>
-                              <p>{user?.telegram}</p>
+                            <div className="text-fourty flex flex-col gap-[2.73px] sm:gap-[2.93px] lg:gap-[5px] font-medium tracking-[-0.04em] sm:tracking-[-0.42px] lg:tracking-[-0.72px]">
+                              <p
+                                className={`${
+                                  user?.role?.length > 20
+                                    ? "text-[8px] sm:text-[9px] lg:text-[15px] leading-[10.5px] sm:leading-[11.5px] lg:leading-[19.5px]"
+                                    : "text-[9.61px] sm:text-[10.55px] lg:text-[18px] leading-[12.51px] sm:leading-[13.73px] lg:leading-[23.44px]"
+                                }`}
+                              >
+                                {user?.role}
+                              </p>
+                              <p
+                                className={`${
+                                  user?.telegram?.length > 20
+                                    ? "text-[8px] sm:text-[9px] lg:text-[15px] leading-[10.5px] sm:leading-[11.5px] lg:leading-[19.5px]"
+                                    : "text-[9.61px] sm:text-[10.55px] lg:text-[18px] leading-[12.51px] sm:leading-[13.73px] lg:leading-[23.44px]"
+                                }`}
+                              >
+                                {user?.telegram}
+                              </p>
                             </div>
                           </div>
                           <button
@@ -387,14 +430,14 @@ const PointsAllocationCard = () => {
                               );
                               handleExpand(originalIndex);
                             }}
-                            className="cursor-pointer w-[73.67px] h-[34.91px] rounded-[5.34px] p-[5.34px] gap-[2.67px] sm:w-[80.72px] sm:h-[38.06px] sm:gap-[2.93px] sm:rounded-[5.86px] sm:p-[5.86px] lg:w-[137px] lg:h-[64.06px]  lg:gap-[5px]  lg:rounded-[10px]  lg:p-[10px] flex flex-col bg-primary items-end"
+                            className="cursor-pointer w-[73.67px] h-[34.91px] rounded-[5.34px] p-[5.34px] gap-[2.67px] sm:w-[80.72px] sm:h-[38.06px] sm:gap-[2.93px] sm:rounded-[5.86px] sm:p-[5.86px] lg:w-[140px] lg:h-[64.06px]  lg:gap-[5px]  lg:rounded-[10px]  lg:p-[10px] flex flex-col bg-primary items-end"
                           >
                             <img
                               src={pointsarrow}
                               alt=""
                               className="h-[8.77px] w-[16.94px] sm:w-[18.16px] sm:h-[9.41px] gap-[0.33px] lg:min-w-[31px] min-h-[16.06px]"
                             />
-                            <p className="font-medium text-[9.61px] leading-[12.51px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[18px] lg:leading-[23.44px] lg:tracking-[-0.72px] text-center text-black">
+                            <p className="font-medium w-full text-[9.61px] leading-[12.51px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[17px] lg:leading-[23.44px] lg:tracking-[-0.72px] text-center text-black">
                               Allocate Points
                             </p>
                           </button>
@@ -405,12 +448,34 @@ const PointsAllocationCard = () => {
                       {isExpanded && (
                         <div className="flex flex-col gap-[13.07px] sm:gap-[12.89px] lg:gap-[22px] w-full">
                           <div className="flex justify-between">
-                            <p className="text-white font-medium text-[26.13px] leading-[34.03px] tracking-[-0.04em] sm:text-[16.4px] sm:leading-[21.36px] sm:tracking-[-0.66px] lg:text-[28px] lg:leading-[36.46px] lg:tracking-[-1.12px] ">
+                            <p
+                              className={`text-white font-medium tracking-[-0.04em] sm:tracking-[-0.66px] lg:tracking-[-1.12px] ${
+                                user?.name?.length > 15
+                                  ? "text-[22px] sm:text-[14px] lg:text-[24px] leading-[28px] sm:leading-[18px] lg:leading-[31px]"
+                                  : "text-[26.13px] sm:text-[16.4px] lg:text-[28px] leading-[34.03px] sm:leading-[21.36px] lg:leading-[36.46px]"
+                              }`}
+                            >
                               {user?.name}
                             </p>
-                            <div className="text-fourty flex flex-col gap-[4.67px] sm:gap-[2.93px] lg:gap-[5px] font-medium text-[16.8px] leading-[21.87px] tracking-[-0.04em] sm:text-[10.55px] sm:leading-[13.73px] sm:tracking-[-0.42px] lg:text-[18px] lg:leading-[23.44px] lg:tracking-[-0.72px]">
-                              <p>{user?.role}</p>
-                              <p>{user?.telegram}</p>
+                            <div className="text-fourty flex flex-col gap-[4.67px] sm:gap-[2.93px] lg:gap-[5px] font-medium tracking-[-0.04em] sm:tracking-[-0.42px] lg:tracking-[-0.72px] text-right">
+                              <p
+                                className={`${
+                                  user?.role?.length > 20
+                                    ? "text-[14px] sm:text-[8.5px] lg:text-[15px] leading-[18px] sm:leading-[11px] lg:leading-[19.5px]"
+                                    : "text-[16.8px] sm:text-[10.55px] lg:text-[18px] leading-[21.87px] sm:leading-[13.73px] lg:leading-[23.44px]"
+                                }`}
+                              >
+                                {user?.role}
+                              </p>
+                              <p
+                                className={`${
+                                  user?.telegram?.length > 20
+                                    ? "text-[14px] sm:text-[8.5px] lg:text-[15px] leading-[18px] sm:leading-[11px] lg:leading-[19.5px]"
+                                    : "text-[16.8px] sm:text-[10.55px] lg:text-[18px] leading-[21.87px] sm:leading-[13.73px] lg:leading-[23.44px]"
+                                }`}
+                              >
+                                {user?.telegram}
+                              </p>
                             </div>
                           </div>
                           <div className="flex flex-col gap-[14px]">

@@ -49,7 +49,7 @@ const LeaderboardTable = ({ contributions = [], loading }) => {
         <div className="w-[126px]">Member Name</div>
         <div className="w-[126px]">Telegram</div>
         <div className="w-[154px]">Total Points</div>
-        <div className="w-[211px]">Last Activity</div>
+        <div className="w-[250px] sm:w-[260px]">Last Activity</div>
         {/* Header top left dot */}
         <div className="absolute left-0 top-0 w-[1.58px] h-[2.64px] sm:w-[4.22px] sm:h-[5.33px] bg-sixty" />
         {/* Header top right dot */}
@@ -105,7 +105,7 @@ const LeaderboardTable = ({ contributions = [], loading }) => {
                 <div className="w-[126px]">{contribution?.name || "-"}</div>
                 <div className="w-[126px]">{contribution?.telegram || "-"}</div>
                 <div className="w-[154px]">{contribution?.points || 0}</div>
-                <div className="w-[211px] capitalize">
+                <div className="w-[250px] sm:w-[260px] capitalize">
                   {contribution?.lastActivity || "No activity"}
                   {contribution?.lastUpdated && (
                     <>
