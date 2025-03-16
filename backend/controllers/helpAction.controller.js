@@ -17,6 +17,8 @@ import {
   entryPoint07Address,
 } from "viem/account-abstraction";
 import { createSmartAccountClient } from "permissionless";
+import { keccak256, toBytes, decodeEventLog } from "viem";
+
 export const allocatePoints = async (req, res) => {
   try {
     const { helpedForWallet, helpedByWallet, points, feedback, category } =
@@ -119,7 +121,6 @@ export const allocatePoints = async (req, res) => {
     console.log("Updated topcontribution:", helpedBy.topcontribution);
 
     // Check if user remains active
-
 
     // Save both users
     await helpedUser.save();
@@ -291,10 +292,12 @@ export const sbtmint = async (req, res) => {
 
   // First, check if the address already has a minted token
   const existingTokenId = await fetchTokenIdForAddress(to);
-  
+
   if (existingTokenId) {
-    console.log(`Token already minted for address ${to}, token ID: ${existingTokenId}`);
-    
+    console.log(
+      `Token already minted for address ${to}, token ID: ${existingTokenId}`
+    );
+
     // Update user in DB with existing token ID
     const user = await User.findOneAndUpdate(
       { walletAddress: to },
@@ -308,7 +311,8 @@ export const sbtmint = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "User already had a minted token, database updated with existing token ID",
+      message:
+        "User already had a minted token, database updated with existing token ID",
       user,
     });
   }
@@ -405,6 +409,38 @@ export const sbtmint = async (req, res) => {
   if (!receipt) {
     return res.status(500).json({ message: "Transaction not confirmed" });
   }
+  console.log(receipt);
+
+  // Define the SbtMinted event signature/topic hash
+  const SBT_MINTED_EVENT = "SbtMinted(address,uint256)";
+  const SBT_MINTED_TOPIC = keccak256(toBytes(SBT_MINTED_EVENT));
+
+  console.log("SBT_MINTED_TOPIC", SBT_MINTED_TOPIC);
+
+  // Extract SbtMinted event from the logs
+const sbtMintedLog = receipt.logs.find(log => 
+  log.address === "0x6604938be60a32ea9b4f0f12c25a89b14e9d1827" && 
+  log.data && 
+  log.data.includes("5c8b8251117164ad52cf2e3b5bc110d9c6ee8ee7")
+);
+
+if (sbtMintedLog) {
+  // Clean the data (remove any newlines or extra spaces)
+  const cleanData = sbtMintedLog.data.replace(/\s+/g, '');
+  
+  // Extract the to address (20 bytes address with 0x prefix)
+  const toAddress = "0x" + cleanData.slice(26, 66);
+  
+  // Extract the tokenId
+  const tokenIdHex = cleanData.slice(66);
+  const tokenId = parseInt(tokenIdHex.replace(/^0+/, ''), 16);
+  
+  // Log just the SbtMinted event
+  console.log(`SbtMinted(${toAddress}, ${tokenId});`);
+} else {
+  console.log("No SbtMinted event found");
+}
+ 
 
   // 🔹 **Fetch Token ID after delay to ensure subgraph indexing**
   let sbtId = null;
@@ -438,21 +474,25 @@ export const sbtmint = async (req, res) => {
 
 const fetchTokenIdForAddress = async (toAddress) => {
   try {
-    // Normalize the address to lowercase to ensure consistent matching
+    // Normalize the address to lowercase
     const normalizedAddress = toAddress.toLowerCase();
-    console.log(normalizedAddress,"normalized")
+    console.log(normalizedAddress, "normalized");
+
     const specificQuery = gql`
-      {
-        sbtMinteds(where: {to: "${normalizedAddress}"}) {
+      query GetSbtMinted($to: String!) {
+        sbtMinteds(where: { to: $to }) {
           id
           to
           tokenId
         }
       }
     `;
-     
-    const data = await request(url, specificQuery);
-console.log("data",data);
+
+    const variables = { to: normalizedAddress };
+
+    const data = await request(url, specificQuery, variables);
+    console.log("data", data);
+
     if (!data || !data.sbtMinteds || data.sbtMinteds.length === 0) {
       console.log(`No token found for address ${normalizedAddress}`);
       return null;
@@ -468,7 +508,6 @@ console.log("data",data);
   }
 };
 
-
 const query = gql`
   {
     sbtMinteds {
@@ -479,11 +518,6 @@ const query = gql`
   }
 `;
 const url = "https://api.studio.thegraph.com/query/106616/ic/version/latest";
-
-
-
-
-
 
 export const reclaimSBT = async (req, res) => {
   try {
@@ -519,8 +553,6 @@ export const reclaimSBT = async (req, res) => {
       });
     }
 
-    
-
     // Update user record
     user.isActive = true;
     user.sbtRevoked = false;
@@ -529,7 +561,7 @@ export const reclaimSBT = async (req, res) => {
     return res.status(200).json({
       success: true,
       message: "SBT successfully reclaimed",
-      user
+      user,
     });
   } catch (error) {
     console.error("Error reclaiming SBT:", error);
@@ -540,4 +572,3 @@ export const reclaimSBT = async (req, res) => {
     });
   }
 };
-      
