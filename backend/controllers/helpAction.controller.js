@@ -440,7 +440,7 @@ const fetchTokenIdForAddress = async (toAddress) => {
   try {
     // Normalize the address to lowercase to ensure consistent matching
     const normalizedAddress = toAddress.toLowerCase();
-
+    console.log(normalizedAddress,"normalized")
     const specificQuery = gql`
       {
         sbtMinteds(where: {to: "${normalizedAddress}"}) {
@@ -450,9 +450,9 @@ const fetchTokenIdForAddress = async (toAddress) => {
         }
       }
     `;
-
+     
     const data = await request(url, specificQuery);
-
+console.log("data",data);
     if (!data || !data.sbtMinteds || data.sbtMinteds.length === 0) {
       console.log(`No token found for address ${normalizedAddress}`);
       return null;
