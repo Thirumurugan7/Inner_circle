@@ -411,36 +411,32 @@ export const sbtmint = async (req, res) => {
   }
   console.log(receipt);
 
-  // Define the SbtMinted event signature/topic hash
-  const SBT_MINTED_EVENT = "SbtMinted(address,uint256)";
-  const SBT_MINTED_TOPIC = keccak256(toBytes(SBT_MINTED_EVENT));
+  // Find the relevant log from our contract
+  const sbtMintedLog = receipt.logs.find(log => 
+    log.address.toLowerCase() === contractAddress.toLowerCase() && 
+    log.data && 
+    log.data !== '0x'
+  );
 
-  console.log("SBT_MINTED_TOPIC", SBT_MINTED_TOPIC);
+  if (sbtMintedLog) {
+    try {
+      // The data field contains both the address and tokenId
+      // Remove '0x' prefix and split into 32-byte chunks
+      const data = sbtMintedLog.data.slice(2);
+      const to = '0x' + data.slice(24, 64); // first 32 bytes (excluding first 24 bytes for padding)
+      const tokenIdHex = '0x' + data.slice(64); // second 32 bytes
+      const tokenId = BigInt(tokenIdHex);
 
-  // Extract SbtMinted event from the logs
-const sbtMintedLog = receipt.logs.find(log => 
-  log.address === "0x6604938be60a32ea9b4f0f12c25a89b14e9d1827" && 
-  log.data && 
-  log.data.includes("5c8b8251117164ad52cf2e3b5bc110d9c6ee8ee7")
-);
-
-if (sbtMintedLog) {
-  // Clean the data (remove any newlines or extra spaces)
-  const cleanData = sbtMintedLog.data.replace(/\s+/g, '');
-  
-  // Extract the to address (20 bytes address with 0x prefix)
-  const toAddress = "0x" + cleanData.slice(26, 66);
-  
-  // Extract the tokenId
-  const tokenIdHex = cleanData.slice(66);
-  const tokenId = parseInt(tokenIdHex.replace(/^0+/, ''), 16);
-  
-  // Log just the SbtMinted event
-  console.log(`SbtMinted(${toAddress}, ${tokenId});`);
-} else {
-  console.log("No SbtMinted event found");
-}
- 
+      console.log("Decoded SbtMinted event:", {
+        to,
+        tokenId: tokenId.toString()
+      });
+    } catch (error) {
+      console.error("Error decoding event data:", error);
+    }
+  } else {
+    console.log("No SbtMinted event found in logs");
+  }
 
   // 🔹 **Fetch Token ID after delay to ensure subgraph indexing**
   let sbtId = null;
