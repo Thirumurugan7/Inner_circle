@@ -408,7 +408,7 @@ export const sbtmint = async (req, res) => {
 
   // 🔹 **Fetch Token ID after delay to ensure subgraph indexing**
   let sbtId = null;
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 10; i++) {
     sbtId = await fetchTokenIdForAddress(to);
     if (sbtId) break;
     await new Promise((resolve) => setTimeout(resolve, 3000)); // Wait 3 sec
@@ -480,9 +480,7 @@ const query = gql`
 `;
 const url = "https://api.studio.thegraph.com/query/106616/ic/version/latest";
 
-async function fetchSubgraphData() {
-  return await request(url, query);
-}
+
 
 
 
