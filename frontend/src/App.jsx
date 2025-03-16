@@ -63,9 +63,9 @@ function App() {
           <Route
             path="/signin"
             element={
-              <ProtectedRoute accessType="signin">
+              // <ProtectedRoute accessType="signin">
                 <Signin />
-              </ProtectedRoute>
+              /* </ProtectedRoute> */
             }
           />
 

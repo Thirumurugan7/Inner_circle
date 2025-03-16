@@ -9,10 +9,10 @@ const ProtectedRoute = ({ children, accessType }) => {
   useEffect(() => {
     if (!currentUser?.user) {
       // Redirect to sign-in for protected routes only
-      if (accessType === "protected" || accessType === "referralOnly") {
-        navigate("/signin", { replace: true });
-      }
-      return;
+      // if (accessType === "protected" || accessType === "referralOnly") {
+      //   navigate("/signin", { replace: true });
+      // }
+      // return;
     }
 
     const { Refferal, minted, email, telegram, role, name, isActive } =

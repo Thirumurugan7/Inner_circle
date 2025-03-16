@@ -22,7 +22,7 @@ const Hero = () => {
       <div className="flex flex-col gap-[10px] md:gap-[15px] lg:gap-[20px]  items-center">
         <button
           className="text-black bg-white w-fit h-[31px] gap-[3.77px] rounded-[20.37px] 
-           px-[11.32px]  sm:pt-[3px] cursor-pointer
+           px-[11.32px]  flex justify-center items-center cursor-pointer
            font-dmSans font-medium text-[12px] leading-[15.62px] tracking-[-0.48px] sm:text-[14px] sm:leading-[16px] sm:rounded-[54px] md:w-[128.15px] md:h-[29.29px] md:gap-[5.86px] md:rounded-[31.64px]  
            md:px-[17.58px] md:py-[5.86px] md:text-[10.55px] md:leading-[13.73px] md:tracking-[-0.04em] lg:w-[211px] lg:h-[50px] text-center lg:text-[18px] lg:leading-[23.44px] sm:py-[9px] lg:px-[13px] sm:w-fit sm:h-fit lg:py-[10px]"
         >
