@@ -73,9 +73,9 @@ function App() {
           <Route
             path="/referral"
             element={
-              <ProtectedRoute accessType="referralOnly">
+           
                 <Referral />
-              </ProtectedRoute>
+        
             }
           />
 

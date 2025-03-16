@@ -5,10 +5,14 @@ import { useSelector } from "react-redux";
 const ProtectedRoute = ({ children, accessType }) => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const navigate = useNavigate();
-
+    const currentPath = window.location.pathname;
   useEffect(() => {
+    if (currentPath === "/referral") {
+      return;
+    }
     if (!currentUser?.user) {
       // Redirect to sign-in for protected routes only
+
       if (accessType === "protected" || accessType === "referralOnly") {
         navigate("/signin", { replace: true });
       }
@@ -103,7 +107,7 @@ const ProtectedRoute = ({ children, accessType }) => {
     ) {
       navigate("/", { replace: true });
     }
-  }, [accessType, currentUser, navigate]);
+  }, [accessType, currentUser, navigate, currentPath]);
 
   return children;
 };
