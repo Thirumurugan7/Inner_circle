@@ -273,22 +273,47 @@ export const getUserStats = async (req, res) => {
 
 export const sbtmint = async (req, res) => {
   const { to } = req.body;
-  const token = req.headers.authorization?.split(" ")[1];
+  // const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) {
-    return res.status(403).json({ message: "No token provided" });
-  }
+  // if (!token) {
+  //   return res.status(403).json({ message: "No token provided" });
+  // }
 
-  try {
-    jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
+  // try {
+  //   jwt.verify(token, process.env.JWT_SECRET);
+  // } catch (error) {
+  //   return res.status(401).json({ message: "Invalid token" });
+  // }
 
   if (!to) {
     return res.status(400).json({ message: "Wallet address is required" });
   }
 
+  // First, check if the address already has a minted token
+  const existingTokenId = await fetchTokenIdForAddress(to);
+  
+  if (existingTokenId) {
+    console.log(`Token already minted for address ${to}, token ID: ${existingTokenId}`);
+    
+    // Update user in DB with existing token ID
+    const user = await User.findOneAndUpdate(
+      { walletAddress: to },
+      { minted: true, sbtId: existingTokenId },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "User already had a minted token, database updated with existing token ID",
+      user,
+    });
+  }
+
+  // If no existing token found, proceed with minting...
   const abi = [
     {
       inputs: [
@@ -413,17 +438,30 @@ export const sbtmint = async (req, res) => {
 
 const fetchTokenIdForAddress = async (toAddress) => {
   try {
-    const data = await fetchSubgraphData();
+    // Normalize the address to lowercase to ensure consistent matching
+    const normalizedAddress = toAddress.toLowerCase();
 
-    if (!data || !data.sbtMinteds) {
-      throw new Error("Invalid data structure received from subgraph");
+    const specificQuery = gql`
+      {
+        sbtMinteds(where: {to: "${normalizedAddress}"}) {
+          id
+          to
+          tokenId
+        }
+      }
+    `;
+
+    const data = await request(url, specificQuery);
+
+    if (!data || !data.sbtMinteds || data.sbtMinteds.length === 0) {
+      console.log(`No token found for address ${normalizedAddress}`);
+      return null;
     }
 
-    const mintedToken = data.sbtMinteds.find(
-      (item) => item.to.toLowerCase() === toAddress.toLowerCase()
+    console.log(
+      `Found token for address ${normalizedAddress}: ${data.sbtMinteds[0].tokenId}`
     );
-
-    return mintedToken ? mintedToken.tokenId : null;
+    return data.sbtMinteds[0].tokenId;
   } catch (error) {
     console.error("Error fetching token ID:", error);
     return null;

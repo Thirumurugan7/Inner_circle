@@ -26,7 +26,7 @@ const Hero = () => {
            font-dmSans font-medium text-[12px] leading-[15.62px] tracking-[-0.48px] sm:text-[14px] sm:leading-[16px] sm:rounded-[54px] md:w-[128.15px] md:h-[29.29px] md:gap-[5.86px] md:rounded-[31.64px]  
            md:px-[17.58px] md:py-[5.86px] md:text-[10.55px] md:leading-[13.73px] md:tracking-[-0.04em] lg:w-[211px] lg:h-[50px] text-center lg:text-[18px] lg:leading-[23.44px] sm:py-[9px] lg:px-[13px] sm:w-fit sm:h-fit lg:py-[10px]"
         >
-          {currentUser && currentUser?.user ? (
+          {currentUser && currentUser?.user.minted ? (
             <Link
               to="/dashboard"
               className="w-full h-full flex items-center justify-center"
