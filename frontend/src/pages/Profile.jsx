@@ -16,9 +16,9 @@ const Profile = () => {
   const [web3auth, setWeb3Auth] = useState(null);
   const [provider, setProvider] = useState(null);
   const [contribution, setContribution] = useState({});
-    const [userData, setUserData] = useState(null);
-    const [pointsHistory, setPointsHistory] = useState([]);
-    const [Loading, setLoading] = useState(false);
+  const [userData, setUserData] = useState(null);
+  const [pointsHistory, setPointsHistory] = useState([]);
+  const [Loading, setLoading] = useState(false);
   const { login, isLoggedIn, loading, user, logout, error } = useAuth();
 
   // Modify your logout handler to clean up all authentication states
@@ -45,9 +45,13 @@ const Profile = () => {
   };
   // Replace with actual wallet address
 
+  // Add this to your existing state declarations
+  const [lastUserDataFetch, setLastUserDataFetch] = useState(0);
+
   useEffect(() => {
     const walletAddress = currentUser?.user?.walletAddress;
-   console.log(currentUser)
+    const fiveMinutesInMs = 5 * 60 * 1000;
+
     const fetchUserByWallet = async () => {
       try {
         const response = await axios.get(
@@ -61,20 +65,26 @@ const Profile = () => {
         if (response.data?.users?.length > 0) {
           const user = response.data.users[0];
           setUserData(user);
-          
+
+          // Update last fetch timestamp in state
+          setLastUserDataFetch(Date.now());
         } else {
           console.warn("No user data found.");
         }
       } catch (error) {
         console.error("Error fetching user:", error);
-    
       }
     };
 
-    if (walletAddress) {
+    // Only fetch if wallet address exists and time threshold has passed
+    if (
+      walletAddress &&
+      (Date.now() - lastUserDataFetch > fiveMinutesInMs ||
+        lastUserDataFetch === 0)
+    ) {
       fetchUserByWallet();
     }
-  }, [currentUser]);
+  }, [currentUser, lastUserDataFetch]); // Added lastUserDataFetch as dependency
 
   // Replace with actual wallet address
 
@@ -108,44 +118,43 @@ const Profile = () => {
   }, [currentUser]);
   const lastContributionTime = contribution?.data?.latestHelpAction?.createdAt;
 
+  useEffect(() => {
+    const fetchHelpActions = async () => {
+      if (!currentUser?.user?.walletAddress) return;
+      const walletAddress = currentUser.user.walletAddress;
+      console.log(walletAddress);
+      setLoading(true); // Start loading
+      try {
+        const response = await axios.get(
+          `https://inner-circle-nine.vercel.app/api/action/gethelpactionByWallet`,
+          {
+            params: { walletAddress },
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
- useEffect(() => {
-   const fetchHelpActions = async () => {
-     if (!currentUser?.user?.walletAddress) return;
-     const walletAddress = currentUser.user.walletAddress;
-     console.log(walletAddress);
-     setLoading(true); // Start loading
-     try {
-       const response = await axios.get(
-         `https://inner-circle-nine.vercel.app/api/action/gethelpactionByWallet`,
-         {
-           params: { walletAddress },
-           headers: {
-             "Content-Type": "application/json",
-           },
-         }
-       );
+        console.log("Fetched Help Actions:", response.data);
 
-       console.log("Fetched Help Actions:", response.data);
+        const formattedData = response.data.map((action) => ({
+          date: new Date(action.createdAt).toLocaleDateString(),
+          pointsEarned: `+${action.pointsAllocated} pts`,
+          category: action.category,
+          givenBy: action.helpedUser?.name || "Unknown",
+          description: action.feedback,
+        }));
 
-       const formattedData = response.data.map((action) => ({
-         date: new Date(action.createdAt).toLocaleDateString(),
-         pointsEarned: `+${action.pointsAllocated} pts`,
-         category: action.category,
-         givenBy: action.helpedUser?.name || "Unknown",
-         description: action.feedback,
-       }));
+        setPointsHistory(formattedData);
+      } catch (error) {
+        console.error("Error fetching help actions:", error);
+      } finally {
+        setLoading(false); // End loading
+      }
+    };
 
-       setPointsHistory(formattedData);
-     } catch (error) {
-       console.error("Error fetching help actions:", error);
-     } finally {
-       setLoading(false); // End loading
-     }
-   };
-
-   fetchHelpActions();
- }, [currentUser]);
+    fetchHelpActions();
+  }, [currentUser]);
   return (
     <div className=" px-[9px] sm:px-[60px] lg:px-[80px] pb-[5rem]">
       <div className="flex flex-col gap-[20.23px] md:gap-[45px]">
@@ -178,9 +187,7 @@ const Profile = () => {
                 <p className=" text-primary w-[83.79px] sm:w-[120px] md:w-[145px]">
                   Email Id
                 </p>
-                <p className=" text-sixty w-fit">
-                  {currentUser?.user?.email}
-                </p>
+                <p className=" text-sixty w-fit">{currentUser?.user?.email}</p>
               </div>
             )}
             {currentUser?.user?.walletAddress && (
@@ -202,7 +209,7 @@ const Profile = () => {
             Social Links
           </p>
           <div className="flex flex-col gap-[11.56px] sm:gap-[11.72px] lg:gap-[15px] md:gap-[20px] font-normal text-[12.71px] leading-[16.55px] tracking-[-0.51px] font-dmSans  sm:text-[12.89px] sm:leading-[16.78px] sm:tracking-[-0.52px] lg:text-[22px] lg:leading-[28.64px] lg:tracking-[-0.04em">
-            {currentUser?.user?.twitterId &&
+            {currentUser?.user?.twitterId && (
               <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
                 <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
                   Twitter
@@ -211,8 +218,8 @@ const Profile = () => {
                   {currentUser?.user?.twitterId}
                 </p>
               </div>
-            }
-            {currentUser?.user?.github &&
+            )}
+            {currentUser?.user?.github && (
               <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
                 <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
                   Github
@@ -221,8 +228,8 @@ const Profile = () => {
                   {currentUser?.user?.github}
                 </p>
               </div>
-            }
-            { currentUser?.user?.website &&
+            )}
+            {currentUser?.user?.website && (
               <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
                 <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
                   Website
@@ -231,8 +238,8 @@ const Profile = () => {
                   {currentUser?.user?.website}
                 </p>
               </div>
-            }
-            { currentUser?.user?.telegram &&
+            )}
+            {currentUser?.user?.telegram && (
               <div className="flex gap-[62.41px] sm:gap-[80px] md:gap-[108px] items-center">
                 <p className=" text-primary w-[83.79px] sm:w-[121px] md:w-[145px]">
                   Telegram
@@ -241,7 +248,7 @@ const Profile = () => {
                   {currentUser?.user?.telegram}
                 </p>
               </div>
-            }
+            )}
           </div>
         </div>
 

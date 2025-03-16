@@ -8,81 +8,91 @@ import { Link } from "react-router-dom";
 import PostData from "../components/PostData";
 import HelpedData from "../components/HelpedData";
 import axios from "axios";
-import bell from '../assets/images/bell.svg'
+import bell from "../assets/images/bell.svg";
 import { updateUserProfile } from "../components/redux/user/userSlice";
 const MemberDashboard = () => {
   const currentUser = useSelector((state) => state.user.currentUser);
   const [userData, setUserData] = useState(null);
   const dispatch = useDispatch();
-   const nameRef = useRef(null);
-   const cardRef = useRef(null);
-   const [fontSize, setFontSize] = useState("text-[32.54px]"); // Default font size
+  const nameRef = useRef(null);
+  const cardRef = useRef(null);
+  const [fontSize, setFontSize] = useState("text-[32.54px]"); // Default font size
+  const lastFetchTimeRef = useRef(0);
 
-   // Function to calculate and set the appropriate font size based on name length
-   const adjustFontSize = () => {
-     if (!nameRef.current || !cardRef.current) return;
+  // Function to calculate and set the appropriate font size based on name length
+  const adjustFontSize = () => {
+    if (!nameRef.current || !cardRef.current) return;
 
-     const nameLength = currentUser?.user?.name?.length || 0;
-     const cardWidth = cardRef.current.offsetWidth;
+    const nameLength = currentUser?.user?.name?.length || 0;
+    const cardWidth = cardRef.current.offsetWidth;
 
-     // Define breakpoints for different screen sizes
-     const isMobile = cardWidth < 210; // sm size
-     const isDesktop = cardWidth > 280; // lg size
+    // Define breakpoints for different screen sizes
+    const isMobile = cardWidth < 210; // sm size
+    const isDesktop = cardWidth > 280; // lg size
 
-     // Adjust font size based on name length and screen size
-     if (isDesktop) {
-       // Desktop sizes
-       if (nameLength > 20) {
-         setFontSize("text-[22px]");
-       } else if (nameLength > 15) {
-         setFontSize("text-[26px]");
-       } else if (nameLength > 10) {
-         setFontSize("text-[30px]");
-       } else {
-         setFontSize("text-[33.4px]"); // Original desktop size
-       }
-     } else if (isMobile) {
-       // Mobile sizes
-       if (nameLength > 20) {
-         setFontSize("text-[14px]");
-       } else if (nameLength > 15) {
-         setFontSize("text-[16px]");
-       } else if (nameLength > 10) {
-         setFontSize("text-[18px]");
-       } else {
-         setFontSize("text-[21.09px]"); // Original mobile size
-       }
-     } else {
-       // Tablet sizes
-       if (nameLength > 20) {
-         setFontSize("text-[18px]");
-       } else if (nameLength > 15) {
-         setFontSize("text-[22px]");
-       } else if (nameLength > 10) {
-         setFontSize("text-[26px]");
-       } else {
-         setFontSize("text-[28.93px]"); // Original tablet size
-       }
-     }
-   };
+    // Adjust font size based on name length and screen size
+    if (isDesktop) {
+      // Desktop sizes
+      if (nameLength > 20) {
+        setFontSize("text-[22px]");
+      } else if (nameLength > 15) {
+        setFontSize("text-[26px]");
+      } else if (nameLength > 10) {
+        setFontSize("text-[30px]");
+      } else {
+        setFontSize("text-[33.4px]"); // Original desktop size
+      }
+    } else if (isMobile) {
+      // Mobile sizes
+      if (nameLength > 20) {
+        setFontSize("text-[14px]");
+      } else if (nameLength > 15) {
+        setFontSize("text-[16px]");
+      } else if (nameLength > 10) {
+        setFontSize("text-[18px]");
+      } else {
+        setFontSize("text-[21.09px]"); // Original mobile size
+      }
+    } else {
+      // Tablet sizes
+      if (nameLength > 20) {
+        setFontSize("text-[18px]");
+      } else if (nameLength > 15) {
+        setFontSize("text-[22px]");
+      } else if (nameLength > 10) {
+        setFontSize("text-[26px]");
+      } else {
+        setFontSize("text-[28.93px]"); // Original tablet size
+      }
+    }
+  };
 
-   // Run the adjustment when the component mounts and when window resizes
-   useEffect(() => {
-     adjustFontSize();
-
-     const handleResize = () => {
-       adjustFontSize();
-     };
-
-     window.addEventListener("resize", handleResize);
-     return () => window.removeEventListener("resize", handleResize);
-   }, [currentUser?.user?.name]);
-   
+  // Run the adjustment when the component mounts and when window resizes
   useEffect(() => {
-  const walletAddress = currentUser?.user?.walletAddress;
+    adjustFontSize();
 
+    const handleResize = () => {
+      adjustFontSize();
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [currentUser?.user?.name]);
+
+  // Function to fetch user data
   const fetchUserByWallet = async () => {
+    const walletAddress = currentUser?.user?.walletAddress;
+    if (!walletAddress) return;
+
+    const currentTime = Date.now();
+    // Only fetch if 5 minutes (300,000 ms) have passed since the last fetch
+    if (currentTime - lastFetchTimeRef.current < 300000 && userData) {
+      console.log("Skipping API call, less than 5 minutes since last fetch");
+      return;
+    }
+
     try {
+      console.log("Fetching user data...");
       const response = await axios.get(
         `https://inner-circle-nine.vercel.app/api/auth/getUsersByWalletAddress`,
         {
@@ -91,12 +101,15 @@ const MemberDashboard = () => {
         }
       );
       console.log("Fetched Data:", response.data); // Log full response
-      
+
+      // Update the last fetch time
+      lastFetchTimeRef.current = currentTime;
+
       // Check if users array is not empty
       if (response.data?.users?.length > 0) {
         setUserData(response.data.users[0]); // Set the first user object directly
         console.log(response.data.users[0]);
-         dispatch(updateUserProfile(response.data.users[0]));
+        dispatch(updateUserProfile(response.data.users[0]));
       } else {
         console.warn("No user data found.");
       }
@@ -105,15 +118,26 @@ const MemberDashboard = () => {
     }
   };
 
-  if (walletAddress) {
-    fetchUserByWallet();
-  }
-}, [currentUser]);
+  // Initial fetch and setup interval
+  useEffect(() => {
+    if (currentUser?.user?.walletAddress) {
+      // Initial fetch
+      fetchUserByWallet();
 
-// Add another useEffect to log when userData changes
-useEffect(() => {
-  console.log("Updated userData:", userData);
-}, [userData]);
+      // Set up interval to fetch every 5 minutes
+      const intervalId = setInterval(fetchUserByWallet, 300000); // 5 minutes in milliseconds
+
+      // Clean up interval on component unmount
+      return () => {
+        clearInterval(intervalId);
+      };
+    }
+  }, [currentUser]);
+
+  // Add another useEffect to log when userData changes
+  useEffect(() => {
+    console.log("Updated userData:", userData);
+  }, [userData]);
 
   return (
     <div>

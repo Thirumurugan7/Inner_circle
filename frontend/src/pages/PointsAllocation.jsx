@@ -40,8 +40,12 @@ const PointsAllocationCard = () => {
     "Others",
   ];
 
+  // Add this to your existing state declarations
+  const [lastUserFetchTime, setLastUserFetchTime] = useState(0);
+
   useEffect(() => {
     const walletAddress = currentUser?.user?.walletAddress;
+    const fiveMinutesInMs = 5 * 60 * 1000;
 
     const fetchUserByWallet = async () => {
       try {
@@ -57,6 +61,9 @@ const PointsAllocationCard = () => {
         // Check if users array is not empty
         if (response.data?.users?.length > 0) {
           dispatch(updateUserProfile(response.data.users[0]));
+
+          // Update last fetch timestamp
+          setLastUserFetchTime(Date.now());
         } else {
           console.warn("No user data found.");
         }
@@ -65,10 +72,15 @@ const PointsAllocationCard = () => {
       }
     };
 
-    if (walletAddress) {
+    // Only fetch if wallet address exists and time threshold has passed
+    if (
+      walletAddress &&
+      (Date.now() - lastUserFetchTime > fiveMinutesInMs ||
+        lastUserFetchTime === 0)
+    ) {
       fetchUserByWallet();
     }
-  }, [currentUser]);
+  }, [currentUser, lastUserFetchTime, dispatch]);
 
   // Add another useEffect to log when userData changes
 
@@ -245,60 +257,60 @@ const PointsAllocationCard = () => {
 
   // Get card style for each user
   // Modify your getCardStyle function
- const getCardStyle = (index, orderedUsers) => {
-   // For mobile view and expanded card
-   if (isMobile && index === 0 && expandedMember !== null) {
-     return {
-       gridColumn: "1 / -1", // Span all columns
-       height: "auto",
-       width: "100%",
-       order: -1, // Ensure it's at the top
-     };
-   }
+  const getCardStyle = (index, orderedUsers) => {
+    // For mobile view and expanded card
+    if (isMobile && index === 0 && expandedMember !== null) {
+      return {
+        gridColumn: "1 / -1", // Span all columns
+        height: "auto",
+        width: "100%",
+        order: -1, // Ensure it's at the top
+      };
+    }
 
-   // For non-expanded cards in mobile view
-   if (isMobile && (index !== 0 || expandedMember === null)) {
-     return {
-       height: "88px", // Fixed height for non-expanded cards in mobile
-       marginBottom: "0px", // Reduce bottom margin
-       width: "175.69px", // Maintain original width
-       alignSelf: "start", // This will help cards stack properly
-       gridRow: "auto", // Let the grid auto-place the items
-       display: "block",
-     };
-   }
+    // For non-expanded cards in mobile view
+    if (isMobile && (index !== 0 || expandedMember === null)) {
+      return {
+        height: "88px", // Fixed height for non-expanded cards in mobile
+        marginBottom: "0px", // Reduce bottom margin
+        width: "175.69px", // Maintain original width
+        alignSelf: "start", // This will help cards stack properly
+        gridRow: "auto", // Let the grid auto-place the items
+        display: "block",
+      };
+    }
 
-   // For desktop view and expanded card
-   if (!isMobile && orderedUsers[index] === filteredUsers[expandedMember]) {
-     return {
-       gridRow: "span 2", // Still 2 rows tall for desktop
-       height: "auto",
-     };
-   }
+    // For desktop view and expanded card
+    if (!isMobile && orderedUsers[index] === filteredUsers[expandedMember]) {
+      return {
+        gridRow: "span 2", // Still 2 rows tall for desktop
+        height: "auto",
+      };
+    }
 
-   // For non-expanded cards in desktop view with responsive heights
-   if (!isMobile) {
-     // Using window width to determine the appropriate height
-     if (windowWidth >= 1024) {
-       // xl breakpoint
-       return {
-         height: "140px",
-       };
-     } else if (windowWidth >= 640) {
-       // lg breakpoint
-       return {
-         height: "90px",
-       };
-     } else {
-       // sm breakpoint (but still !isMobile)
-       return {
-         height: "88px",
-       };
-     }
-   }
+    // For non-expanded cards in desktop view with responsive heights
+    if (!isMobile) {
+      // Using window width to determine the appropriate height
+      if (windowWidth >= 1024) {
+        // xl breakpoint
+        return {
+          height: "140px",
+        };
+      } else if (windowWidth >= 640) {
+        // lg breakpoint
+        return {
+          height: "90px",
+        };
+      } else {
+        // sm breakpoint (but still !isMobile)
+        return {
+          height: "88px",
+        };
+      }
+    }
 
-   return {}; // Default style
- };
+    return {}; // Default style
+  };
 
   const orderedUsers = getOrderedUsers();
 
