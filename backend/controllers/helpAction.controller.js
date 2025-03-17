@@ -122,7 +122,8 @@ export const sbtmint = async (req, res) => {
 
 export const reclaimSBT = async (req, res) => {
   try {
-    const { address } = req.body;
+    const { address } = req.query; // Changed from req.params to req.query
+    console.log(address);
 
     if (!address) {
       return res.status(400).json({ message: "Wallet address is required" });
@@ -174,7 +175,7 @@ export const reclaimSBT = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: "Points retrieved successfully",
+      message: "Points retrieved successfully", 
       points: points.toString(),
       address: address
     });
