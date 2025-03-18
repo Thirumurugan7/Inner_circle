@@ -1,7 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectDB from "./config/db.js";
+
 
 import helpActionRoutes from './routes/helpAction.route.js'
 
@@ -11,8 +11,7 @@ dotenv.config();
 app.use(express.json());
 app.use(cors());
 
-// Connect to DB
-connectDB();
+
 
 // Routes
 
