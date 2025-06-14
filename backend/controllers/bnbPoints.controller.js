@@ -85,7 +85,7 @@ export const sbtmint = async (req, res) => {
   const apiKey = process.env.PIMLICO_BNB_API_KEY;
   if (!apiKey) throw new Error("Missing PIMLICO_API_KEY");
 
-  const privateKey = process.env.PRIVATE_KEY_BNB;
+  const privateKey = process.env.PRIVATE_KEY;
   const contractAddress = "0x48CAF9F90d09e4f734c88D6fDE1d0223b0F558Ed";
 
   const publicClient = createPublicClient({
